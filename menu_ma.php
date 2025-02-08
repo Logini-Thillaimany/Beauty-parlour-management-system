@@ -2,7 +2,7 @@
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#dashboard">
                   <i class="fas fa-home"></i>
-                  <p>Guest</p>
+                  <p>ma</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="dashboard">
@@ -188,13 +188,18 @@
                 <div class="collapse" id="sidebarLayouts">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="index.php?page=login.php">
-                        <span class="sub-item">Login</span>
+                      <a href="logout.php">
+                        <span class="sub-item">Logout</span>
                       </a>
                     </li>
                     <li>
-                      <a href="index.php?page=forgetpassword.php">
-                        <span class="sub-item">Forget password</span>
+                      <a href="index.php?page=changepassword.php">
+                        <span class="sub-item">Change password</span>
+                      </a>
+                    </li>
+					<li>
+                      <a href="index.php?page=profile.php">
+                        <span class="sub-item">Profile</span>
                       </a>
                     </li>
 					<li>
