@@ -1,0 +1,20 @@
+<a href="index.php?page=staff.php&option=fullview&pk_staff_id='.$row_view["staff_id"].'&pk_nic='.$row_view["nic"].'">
+
+$get_pk_staff_id=$_GET["pk_staff_id"];
+$get_pk_nic=$_GET["pk_nic"];
+		
+$sql_fullview="SELECT * FROM staff WHERE staff_id='$get_pk_staff_id' AND nic='$get_pk_nic'";
+
+
+<a href="index.php?page=staff.php&option=edit&pk_staff_id=<?php echo $row_fullview["staff_id"]; ?>&pk_nic=<?php echo $row_fullview["nic"]; ?>"><button class="btn btn-info">Edit</button></a> 
+
+
+$sql_update="UPDATE staff SET
+								name='".mysqli_real_escape_string($con,$_POST["txtname"])."',
+								dob='".mysqli_real_escape_string($con,$_POST["txtdob"])."',
+								gender='".mysqli_real_escape_string($con,$_POST["txtgender"])."',
+								mobile='".mysqli_real_escape_string($con,$_POST["txtmobile"])."',
+								address='".mysqli_real_escape_string($con,$_POST["txtaddress"])."',
+								designation='".mysqli_real_escape_string($con,$_POST["txtdesignation"])."',
+								jointdate='".mysqli_real_escape_string($con,$_POST["txtjoindate"])."'
+								WHERE staff_id='".mysqli_real_escape_string($con,$_POST["txtstaffid"])."' AND nic='".mysqli_real_escape_string($con,$_POST["txtnic"])."'";
