@@ -13,6 +13,9 @@ else
 {//guest or public
 	$system_usertype="Guest";
 }
+if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="MakeupArtist" || $system_usertype=="SaloonService")
+{//allow these users to access this page 
+
 include("connection.php");
 //insert code start
 if(isset($_POST["btnsave"]))
@@ -26,12 +29,12 @@ if(isset($_POST["btnsave"]))
 									'".mysqli_real_escape_string($con,$_POST["txtendtime"])."',
 									'".mysqli_real_escape_string($con,$_POST["txtreason"])."',
 									'".mysqli_real_escape_string($con,$_POST["txtapplydate"])."',
-									'".mysqli_real_escape_string($con,$_POST["txtstatus"])."')";
+									'".mysqli_real_escape_string($con,"Pending")."')";
 	$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
 	if($result_insert)
 	{
-		echo '<script>alert("Successfully Insert");
-						window.location.href="index.php?page=staffleave.php&option=add";</script>';
+		echo '<script>alert("Successfully Appplied Leave");
+						window.location.href="index.php?page=staffleave.php&option=view";</script>';
 	}
 }
 //insert code end
@@ -58,6 +61,127 @@ if(isset($_POST["btnsavechanges"]))
 }
 //update code end
 ?>
+<script>
+function enable_starttime()
+{
+	var start_date = document.getElementById("txtstartdate").value;
+	document.getElementById("txtstarttime").value="";
+	document.getElementById("txtstarttime").readOnly= true;
+	document.getElementById("txtenddate").value="";
+	document.getElementById("txtenddate").readOnly= true;
+	document.getElementById("txtendtime").value="";
+	document.getElementById("txtendtime").readOnly= true;
+
+	if(start_date!="")
+	{
+		document.getElementById("txtstarttime").value="";
+		document.getElementById("txtstarttime").readOnly= false;
+	}
+}
+</script>
+<script>
+function enable_enddate()
+{
+	var start_date = document.getElementById("txtstartdate").value;
+	var start_time = document.getElementById("txtstarttime").value;
+	
+	document.getElementById("txtenddate").value="";
+	document.getElementById("txtenddate").readOnly= true;
+	document.getElementById("txtendtime").value="";
+	document.getElementById("txtendtime").readOnly= true;
+
+
+	if(start_time!="" && start_date!="")
+	{
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() 
+		{
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) 
+			{
+				var responsevalue = xmlhttp.responseText.trim();
+				document.getElementById("txtenddate").value="";
+				document.getElementById("txtenddate").min= start_date;
+				document.getElementById("txtenddate").max=responsevalue;
+				document.getElementById("txtenddate").readOnly= false;
+			}
+		};
+		xmlhttp.open("GET", "ajaxpage.php?frompage=staffleave_startdate&ajax_start_date=" + start_date, true);
+		xmlhttp.send();
+	}
+}
+</script>
+<script>
+function enable_endtime()
+{
+	var start_date = document.getElementById("txtstartdate").value;
+	var start_time = document.getElementById("txtstarttime").value;
+	var end_date = document.getElementById("txtenddate").value;
+	
+	document.getElementById("txtendtime").value="";
+	document.getElementById("txtendtime").readOnly= true;
+
+
+	if(start_time!="" && end_date!="")
+	{
+		if(start_date==end_date)
+		{
+			document.getElementById("txtendtime").min=start_time;
+			document.getElementById("txtendtime").max="18:30:00";
+			document.getElementById("txtendtime").readOnly= false;	
+		}
+		else if(start_date<end_date)
+		{
+			document.getElementById("txtendtime").min="08:00:00";
+			document.getElementById("txtendtime").max="18:30:00";
+			document.getElementById("txtendtime").readOnly= false;
+		}
+	}
+	else
+	{
+		alert("Please select start time and end date first");
+		document.getElementById("txtenddate").value="";
+	}
+}
+</script>
+<script>
+function checkLeave()
+{
+	var start_date = document.getElementById("txtstartdate").value;
+	var start_time = document.getElementById("txtstarttime").value;
+	var end_date = document.getElementById("txtenddate").value;
+	var end_time=document.getElementById("txtendtime").value;
+	var staff_id=document.getElementById("txtstaffid").value;
+	if(staff_id!="" && end_time!="")
+	{
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function() 
+		{
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) 
+			{
+				var responsevalue = xmlhttp.responseText.trim();
+				if(responsevalue=="No")
+				{
+					alert("sorry! You have already take a leave on this date and time");
+					document.getElementById("txtstartdate").value = "";
+					document.getElementById("txtstarttime").value="";
+					document.getElementById("txtstarttime").readOnly= true;
+					document.getElementById("txtenddate").value="";
+					document.getElementById("txtenddate").readOnly= true;
+					document.getElementById("txtendtime").value="";
+					document.getElementById("txtendtime").readOnly= true;
+				}
+			}
+		};
+		xmlhttp.open("GET", "ajaxpage.php?frompage=staffleave_check&ajax_start_date=" + start_date+"&ajax_start_time="+start_time+"&ajax_end_date="+end_date+"&ajax_end_time="+end_time+"&ajax_staff_id="+staff_id, true);
+		xmlhttp.send();
+	}
+	else
+	{
+		alert("Please select staff and end time first");
+		document.getElementById("txtendtime").value="";
+	}
+}
+</script>
 <body>
 <?php
 if(isset($_GET["option"]))
@@ -103,9 +227,17 @@ if(isset($_GET["option"]))
 										<div class="col-md-6 col-lg-6">
 											<label for="txtstaffid">staff</label>
 											<select class="form-control" name="txtstaffid" id="txtstaffid" required placeholder="Staff">
-												<option value="select">Select staff </option>
 												<?php
-												$sql_load="SELECT staff_id, name FROM staff ";
+												if($system_usertype=="Clerk")
+												{
+													echo'<option value="" disabled selected>Select staff </option>';
+													$sql_load="SELECT staff_id, name FROM staff WHERE designation!='Admin' AND staff_id IN (SELECT user_id FROM login WHERE status='Active')";
+												}
+												else
+												{
+													$sql_load="SELECT staff_id, name FROM staff WHERE staff_id='$system_user_id'";
+												}
+												
 												$result_load=mysqli_query($con,$sql_load) or die("sql error in sql_load".mysqli_error($con));
 												while($row_load=mysqli_fetch_assoc($result_load))
 												{
@@ -125,13 +257,25 @@ if(isset($_GET["option"]))
 										<!-- column one start -->
 										<div class="col-md-6 col-lg-6">									
 											<label for="txtstartdate">Start date</label>
-											<input type="date" class="form-control" name="txtstartdate" id="txtstartdate" required placeholder="start date"/>
+											<?php
+											$today=date('Y-m-d');
+											$maxdate=date("Y-m-d", strtotime($today."+2 months"));
+											if($system_usertype=="Clerk")
+											{
+												$mindate=$today;
+											}
+											else
+											{
+												$mindate=date("Y-m-d", strtotime($today."+1 day"));
+											}
+											?>
+											<input type="date" class="form-control" name="txtstartdate" id="txtstartdate" min="<?php echo $mindate; ?>" max="<?php echo $maxdate; ?>" onChange="enable_starttime()" required placeholder="start date"/>
 										</div>
 										<!-- column one end -->
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtstarttime">Start time</label>
-											<input type="time" class="form-control" name="txtstarttime" id="txtstarttime" required placeholder="Start time"/>
+											<input type="time" class="form-control" name="txtstarttime" id="txtstarttime" readonly min="08:00:00" max="18:30:00" onChange="enable_enddate()" required placeholder="Start time"/>
 										</div>
 										<!-- column two end -->
 									</div>
@@ -144,13 +288,13 @@ if(isset($_GET["option"]))
 										<!-- column one start -->
 										<div class="col-md-6 col-lg-6">									
 											<label for="txtenddate">End date</label>
-											<input type="date" class="form-control" name="txtenddate" id="txtenddate" required placeholder="End date"/>
+											<input type="date" class="form-control" name="txtenddate" id="txtenddate" readonly onChange="enable_endtime()" required placeholder="End date"/>
 										</div>
 										<!-- column one end -->
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtendtime">End time</label>
-											<input type="time" class="form-control" name="txtendtime" id="txtendtime" required placeholder="End time"/>
+											<input type="time" class="form-control" name="txtendtime" id="txtendtime" readonly min="08:00:00" max="18:30:00" onblur="checkLeave()" required placeholder="End time"/>
 										</div>
 										<!-- column two end -->
 									</div>
@@ -163,31 +307,20 @@ if(isset($_GET["option"]))
 										<!-- column one start -->
 										<div class="col-md-6 col-lg-6">									
 											<label for="txtreason">Reason</label>
-											<input type="text" class="form-control" name="txtreason" id="txtreason" required placeholder=" Reasons for Leave apply"/>
+											<textarea class="form-control" name="txtreason" id="txtreason" required placeholder=" Reasons for Leave apply"></textarea>
 										</div>
 										<!-- column one end -->
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtapplydate">Apply date</label>
-											<input type="date" class="form-control" name="txtapplydate" id="txtapplydate" required placeholder="Apply date"/>
+											<input type="date" class="form-control" name="txtapplydate" id="txtapplydate" value="<?php echo date('Y-m-d'); ?>" readonly required placeholder="Apply date"/>
 										</div>
 										<!-- column two end -->
 									</div>
 								</div>
 								<!-- third row end -->
 								
-								<!-- fourth row start -->
-								<div class="form-group">
-									<div class="row">
-										<!-- column one start -->
-										<div class="col-md-6 col-lg-6">									
-											<label for="txtstatus">status</label>
-											<input type="text" class="form-control" name="txtstatus" id="txtstatus" required placeholder="Approved/deny"/>
-										</div>
-										<!-- column one end -->
-									</div>
-								</div>
-								<!-- fourth row end -->
+								
 								
 								
 								<!-- button start -->
@@ -225,10 +358,18 @@ if(isset($_GET["option"]))
 					</div>
 					<div class="card-body">
 						<div class="table-responsive">
+							<?php
+							if($system_usertype=="Clerk" || $system_usertype=="MakeupArtist" || $system_usertype=="SaloonService")
+							{
+							?>
 							<a href="index.php?page=staffleave.php&option=add"><button class="btn btn-primary">Add Staff Leave</button></a><br><br>
+							<?php 
+							}
+							?>
 							<table id="basic-datatables" class="display table table-striped table-hover">
 								<thead>
 									<tr>
+										<th>#</th>
 										<th>Leave ID</th>
 										<th>Staff</th>
 										<th>Startdate</th>
@@ -239,7 +380,15 @@ if(isset($_GET["option"]))
 								</thead>
 								<tbody>
 									<?php
-									$sql_view="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave";
+									if( $system_usertype=="MakeupArtist" || $system_usertype=="SaloonService")
+									{
+										$sql_view="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE staff_id='$system_user_id' ORDER BY startdate DESC";
+									}
+									else 
+									{
+										$sql_view="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave ORDER BY startdate DESC";
+									}
+									$X=1;
 									$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
 									while($row_view=mysqli_fetch_assoc($result_view))
 									{	
@@ -248,6 +397,7 @@ if(isset($_GET["option"]))
 										$row_staff=mysqli_fetch_assoc($result_staff);
 										
 										echo '<tr>';
+											echo '<td>'.$X++.'</td>';
 											echo '<td>'.$row_view["leave_id"].'</td>';
 											echo '<td>'.$row_staff["name"].'</td>';
 											echo '<td>'.$row_view["startdate"].'</td>';
@@ -255,8 +405,20 @@ if(isset($_GET["option"]))
 											echo '<td>'.$row_view["status"].'</td>';
 											echo '<td>';
 												echo '<a href="index.php?page=staffleave.php&option=fullview&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a> ';
-												echo '<a href="index.php?page=staffleave.php&option=edit&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-info btn-sm"><i class="fa fa-pen"></i> Edit</button></a> ';
-												echo '<a onclick="return delete_confirm()" href="index.php?page=staffleave.php&option=delete&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Delete</button></a> ';
+												if($row_view["status"]=="Pending" && $row_view["startdate"]>=date("Y-m-d"))
+												{
+													echo '<a onclick="return delete_confirm()" href="index.php?page=staffleave.php&option=delete&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Cancel Apply</button></a> ';
+												}
+
+												if($row_view["status"]=="Approved" && $row_view["startdate"]>=date("Y-m-d"))
+												{
+													echo '<a onclick="return delete_confirm()" href="index.php?page=staffleave.php&option=delete&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Cancel Leave</button></a> ';
+												}
+
+												if($row_view["status"]=="Approved" && $row_view["startdate"]<date("Y-m-d")  && $row_view["enddate"]>date("Y-m-d"))
+												{
+													echo '<a onclick="return delete_confirm()" href="index.php?page=staffleave.php&option=terminate&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Terminate Leave</button></a> ';
+												}
 											echo '</td>';
 										echo '</tr>';
 									}
@@ -293,22 +455,27 @@ if(isset($_GET["option"]))
 					</div>
 					<div class="card-body">
 						<div class="table-responsive">
-							<a href="index.php?page=staffleave.php&option=add"><button class="btn btn-primary">Add Staff Leave</button></a><br><br>
 							<table id="basic-datatables" class="display table table-striped table-hover">
 								<tr><th>Leave ID</th><td><?php echo $row_fullview["leave_id"]; ?></td></tr>
+								<tr><th>Apply Date</th><td><?php echo $row_fullview["applydate"]; ?></td></tr>
 								<tr><th>Staff </th><td><?php echo $row_staff["name"]; ?></td></tr>
-								<tr><th>Start Date</th><td><?php echo $row_fullview["startdate"]; ?></td></tr>
-								<tr><th>End Date</th><td><?php echo $row_fullview["enddate"]; ?></td></tr>
+								<tr><th>Start Date</th><td><?php echo $row_fullview["startdate"]; ?></td></tr>								
 								<tr><th>Start time</th><td><?php echo $row_fullview["starttime"]; ?></td></tr>
-								<tr><th>End Time</th><td><?php echo $row_fullview["enddate"]; ?></td></tr>
-								<tr><th>Reason</th><td><?php echo $row_fullview["reason"]; ?></td></tr>
-								<tr><th>Appl Date</th><td><?php echo $row_fullview["applydate"]; ?></td></tr>
+								<tr><th>End Date</th><td><?php echo $row_fullview["enddate"]; ?></td></tr>
+								<tr><th>End Time</th><td><?php echo $row_fullview["endtime"]; ?></td></tr>
+								<tr><th>Reason</th><td><?php echo $row_fullview["reason"]; ?></td></tr>								
 								<tr><th>status</th><td><?php echo $row_fullview["status"]; ?></td></tr>
 								<tr>			
 									<td colspan="2">
 										<center>
 											<a href="index.php?page=staffleave.php&option=view"><button class="btn btn-primary">Go Back</button></a> 
-											<a href="index.php?page=staffleave.php&option=edit&pk_leave_id=<?php echo $row_fullview["leave_id"]; ?>"><button class="btn btn-info">Edit</button></a> 
+											<?php
+											if($row_fullview["status"]=="Pending" && $row_fullview["startdate"]>=date("Y-m-d") && $system_usertype=="Admin")
+											{
+												echo '<a onclick="return accept_confirm()" href="index.php?page=staffleave.php&option=status&pk_leave_id='.$row_fullview["leave_id"].'&status=Approved"><button class="btn btn-success">Approve Leave</button></a> ';
+												echo '<a onclick="return reject_confirm()" href="index.php?page=staffleave.php&option=status&pk_leave_id='.$row_fullview["leave_id"].'&status=Reject"><button class="btn btn-danger">Reject Leave</button></a> ';
+											}
+											?>
 										</center>
 									</td>
 								</tr>
@@ -469,14 +636,48 @@ if(isset($_GET["option"]))
 		//delete code
 		$get_pk_leave_id=$_GET["pk_leave_id"];
 		
-		$sql_delete="DELETE FROM staffleave WHERE leave_id='$get_pk_leave_id'";
+		$sql_delete="UPDATE staffleave SET status='Cancel' WHERE leave_id='$get_pk_leave_id'";
 		$result_delete=mysqli_query($con,$sql_delete) or die("sql error in sql_delete ".mysqli_error($con));
 		if($result_delete)
 		{
-		echo '<script>alert("Successfully Deleted");
+		echo '<script>alert("Successfully Cancelled Leave Apply");
+						window.location.href="index.php?page=staffleave.php&option=view";</script>';
+		}
+	}
+	else if($_GET["option"]=="status")
+	{
+		//delete code
+		$get_pk_leave_id=$_GET["pk_leave_id"];
+		$get_status=$_GET["status"];
+		
+		$sql_delete="UPDATE staffleave SET status='$get_status' WHERE leave_id='$get_pk_leave_id'";
+		$result_delete=mysqli_query($con,$sql_delete) or die("sql error in sql_delete ".mysqli_error($con));
+		if($result_delete)
+		{
+		echo '<script>alert("Successfully Leave Apply updated");
+						window.location.href="index.php?page=staffleave.php&option=fullview&pk_leave_id='.$get_pk_leave_id.'";</script>';
+		}
+	}
+	else if($_GET["option"]=="terminate")
+	{
+		//delete code
+		$get_pk_leave_id=$_GET["pk_leave_id"];
+		$today=date("Y-m-d");
+		
+		$sql_delete="UPDATE staffleave SET enddate='$today',endtime='18:30:00' WHERE leave_id='$get_pk_leave_id'";
+		$result_delete=mysqli_query($con,$sql_delete) or die("sql error in sql_delete ".mysqli_error($con));
+		if($result_delete)
+		{
+		echo '<script>alert("Successfully terminate the Leave");
 						window.location.href="index.php?page=staffleave.php&option=view";</script>';
 		}
 	}
 }
 ?>
 </body>
+<?php 
+}
+else{// other users redirect to index page
+	echo '<script>window.location.href="index.php";</script>';
+}
+?>

@@ -91,7 +91,39 @@ include("connection.php");
 	  }
 	}
 	</script>
+
+  <script>
+  //this is for accept confirm
+	function accept_confirm()
+	{
+	  var response_accept=confirm("Are you sure do you want to accept this record?");
+	  if(response_accept)
+	  {
+		return true;  
+	  }  
+	  else
+	  {
+		  return false;
+	  }
+	}
+	</script>
 	<script>
+  //this is for reject confirm
+	function reject_confirm()
+	{
+	  var response_reject=confirm("Are you sure do you want to reject this record?");
+	  if(response_reject)
+	  {
+		return true;  
+	  }  
+	  else
+	  {
+		  return false;
+	  }
+	}
+</script>
+  
+  <script>
 	  //this is for text validation
 	function isTextKey(evt) // only text to allow the input field
 	{

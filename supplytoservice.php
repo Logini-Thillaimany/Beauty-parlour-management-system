@@ -25,10 +25,57 @@ if(isset($_POST["btnsave"]))
 									'".mysqli_real_escape_string($con,$_POST["txtdate"])."',
 									'".mysqli_real_escape_string($con,$_POST["txtstaffid"])."')";
 	$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
+
+	$sql_view="SELECT supply_id,product_id,quantity FROM suppltoserviceitem WHERE supply_id='$_SESSION[session_supply]'";
+	$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
+	while($row_view=mysqli_fetch_assoc($result_view))
+	{ 	
+		$sql_product="SELECT expiretype from product WHERE product_id='$row_view[product_id]'";
+		$result_product=mysqli_query($con,$sql_product) or die("sql error in sql_product ".mysqli_error($con));
+		$row_product=mysqli_fetch_assoc($result_product);
+		if($row_product["expiretype"]=="Yes")
+		{
+			$today=date("Y-m-d");
+			$now_quantity=$row_view["quantity"];
+			$sql_stock="SELECT * from stock WHERE product_id='$row_view[product_id]' AND purchase_id IN (SELECT purchase_id FROM purchaseproduct WHERE expiredate>='$today' AND product_id='$row_view[product_id]')";
+			$result_stock=mysqli_query($con,$sql_stock) or die("sql error in sql_stock ".mysqli_error($con));
+			while($row_stock=mysqli_fetch_assoc($result_stock))
+			{
+				if($now_quantity<=$row_stock["quantity"])
+				{
+					$new_quantity=$row_stock["quantity"]-$now_quantity;
+
+					$sql_update="UPDATE stock SET quantity='$new_quantity' WHERE product_id='".mysqli_real_escape_string($con,$row_view["product_id"])."' AND purchase_id='".mysqli_real_escape_string($con,$row_stock["purchase_id"])."'";
+					$result_update=mysqli_query($con,$sql_update) or die("sql error in sql_update ".mysqli_error($con));
+					break;
+				}
+				else
+				{
+					$now_quantity=$now_quantity-$row_stock["quantity"];
+					$new_quantity=0;
+
+					$sql_update="UPDATE stock SET quantity='$new_quantity' WHERE product_id='".mysqli_real_escape_string($con,$row_view["product_id"])."' AND purchase_id='".mysqli_real_escape_string($con,$row_stock["purchase_id"])."'";
+					$result_update=mysqli_query($con,$sql_update) or die("sql error in sql_update ".mysqli_error($con));
+				}
+			}			
+		}
+		else{
+			$sql_stock="SELECT quantity from stockne WHERE product_id='".mysqli_real_escape_string($con,$row_view["product_id"])."'";
+			$result_stock=mysqli_query($con,$sql_stock) or die("sql error in sql_stock ".mysqli_error($con));
+			$row_stock=mysqli_fetch_assoc($result_stock);
+			$new_quantity=$row_stock["quantity"]-$row_view["quantity"];
+
+			$sql_update="UPDATE stockne SET quantity='$new_quantity' WHERE product_id='".mysqli_real_escape_string($con,$row_view["product_id"])."'";
+			$result_update=mysqli_query($con,$sql_update) or die("sql error in sql_update ".mysqli_error($con));
+		}
+
+	}
+
 	if($result_insert)
 	{
+		unset($_SESSION["session_supply"]);
 		echo '<script>alert("Successfully Insert");
-						window.location.href="index.php?page=supplytoservice.php&option=add";</script>';
+						window.location.href="index.php?page=supplytoservice.php&option=fullview&pk_supply_id='.$_POST["txtsupplyid"].'";</script>';
 	}
 }
 //insert code end
@@ -75,17 +122,8 @@ if(isset($_GET["option"]))
 										<div class="col-md-6 col-lg-6">									
 											<label for="txtsupplyid">Supply ID</label>
 											<?php
-												$sql_generatedid="SELECT supply_id FROM supplytoservice ORDER BY supply_id DESC LIMIT 1";
-												$result_generatedid=mysqli_query($con,$sql_generatedid) or die("sql error in sql_generatedid ".mysqli_error($con));
-												if(mysqli_num_rows($result_generatedid)==1)
-												{// for  except from the first submission
-													$row_generatedid=mysqli_fetch_assoc($result_generatedid);
-													$generatedid=++$row_generatedid["supply_id"];
-												}
-												else
-												{//For first time submission
-													$generatedid="SUB0000001";
-												}
+											$generatedid=$_SESSION["session_supply"];
+											
 											?>
 											<input type="text" class="form-control" name="txtsupplyid" id="txtsupplyid" required placeholder="Supply ID" value="<?php echo $generatedid;?>" readonly />
 										</div>
@@ -93,7 +131,7 @@ if(isset($_GET["option"]))
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtdate">Date</label>
-											<input type="date" class="form-control" name="txtdate" id="txtdate" required placeholder="Supply date"/>
+											<input type="date" value="<?php echo date("Y-m-d"); ?>" readonly class="form-control" name="txtdate" id="txtdate" required placeholder="Supply date"/>
 										</div>
 										<!-- column two end -->
 									</div>
@@ -107,9 +145,8 @@ if(isset($_GET["option"]))
 										<div class="col-md-6 col-lg-6">									
 											<label for="txtstaffid">Enter By</label>
 											<select  class="form-control" name="txtstaffid" id="txtstaffid" required placeholder="Enter By">
-												<option value="select">Select Enter by </option>
 												<?php
-												$sql_load="SELECT staff_id, name FROM staff ";
+												$sql_load="SELECT staff_id, name FROM staff WHERE staff_id='$system_user_id'";
 												$result_load=mysqli_query($con,$sql_load) or die("sql error in sql_load".mysqli_error($con));
 												while($row_load=mysqli_fetch_assoc($result_load))
 												{
@@ -129,7 +166,7 @@ if(isset($_GET["option"]))
 									<div class="row">
 										<div class="col-md-6 col-lg-12">	
 											<center>
-												<a href="index.php?page=supplytoservice.php&option=view"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
+												<a href="index.php?page=supplytoserviceitem.php&option=add"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
 												<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
 												<input type="submit" class="btn btn-success" name="btnsave" id="btnsave"  value="Save"/>
 											</center>
@@ -163,6 +200,7 @@ if(isset($_GET["option"]))
 							<table id="basic-datatables" class="display table table-striped table-hover">
 								<thead>
 									<tr>
+										<th>#</th>
 										<th>Supply ID</th>
 										<th>Date</th>
 										<th>Enter by</th>
@@ -171,7 +209,8 @@ if(isset($_GET["option"]))
 								</thead>
 								<tbody>
 									<?php
-									$sql_view="SELECT supply_id,date,enterby FROM supplytoservice";
+									$x=1;
+									$sql_view="SELECT supply_id,date,enterby FROM supplytoservice ORDER BY date DESC";
 									$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
 									while($row_view=mysqli_fetch_assoc($result_view))
 									{
@@ -180,12 +219,12 @@ if(isset($_GET["option"]))
 										$row_staff=mysqli_fetch_assoc($result_staff);
 										
 										echo '<tr>';
+											echo '<td>'.$x++.'</td>';
 											echo '<td>'.$row_view["supply_id"].'</td>';
 											echo '<td>'.$row_view["date"].'</td>';
 											echo '<td>'.$row_staff["name"].'</td>';
 											echo '<td>';
-												echo '<a href="index.php?page=supplytoservice.php&option=edit&pk_supply_id='.$row_view["supply_id"].'"><button class="btn btn-info btn-sm"><i class="fa fa-pen"></i> Edit</button></a> ';
-												echo '<a onclick="return delete_confirm()" href="index.php?page=supplytoservice.php&option=delete&pk_supply_id='.$row_view["supply_id"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Delete</button></a> ';
+												echo '<a href="index.php?page=supplytoservice.php&option=fullview&pk_supply_id='.$row_view["supply_id"].'"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a> ';
 											echo '</td>';
 										echo '</tr>';
 									}
@@ -221,8 +260,7 @@ if(isset($_GET["option"]))
 					</div>
 					<div class="card-body">
 						<div class="table-responsive">
-							<a href="index.php?page=supplytoservice.php&option=add"><button class="btn btn-primary">Add supply to service</button></a><br><br>
-							<table id="basic-datatables" class="display table table-striped table-hover">
+							<table class="display table table-striped table-hover">
 								<tr><th>Supply ID</th><td><?php echo $row_fullview["supply_id"]; ?></td></tr>
 								<tr><th>Date</th><td><?php echo $row_fullview["date"]; ?></td></tr>
 								<tr><th>Enter By</th><td><?php echo $row_staff["name"]; ?></td></tr>
@@ -230,10 +268,53 @@ if(isset($_GET["option"]))
 									<td colspan="2">
 										<center>
 											<a href="index.php?page=supplytoservice.php&option=view"><button class="btn btn-primary">Go Back</button></a> 
-											<a href="index.php?page=supplytoservice.php&option=edit&pk_supply_id=<?php echo $row_fullview["supply_id"]; ?>"><button class="btn btn-info">Edit</button></a> 
 										</center>
 									</td>
 								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- supply to service item table start -->
+		 <div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-header">
+						<h4 class="card-title">Supply to Service item Details</h4>
+					</div>
+					<div class="card-body">
+						<div class="table-responsive">
+							<table id="basic-datatables" class="display table table-striped table-hover">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>supply ID</th>
+										<th>product ID</th>
+										<th>quantity</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+									$x=1;
+									$sql_view="SELECT supply_id,product_id,quantity FROM suppltoserviceitem WHERE supply_id='$get_pk_supply_id'";
+									$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
+									while($row_view=mysqli_fetch_assoc($result_view))
+									{ 	
+										$sql_product="SELECT name from product WHERE product_id='$row_view[product_id]'";
+										$result_product=mysqli_query($con,$sql_product) or die("sql error in sql_product ".mysqli_error($con));
+										$row_product=mysqli_fetch_assoc($result_product);
+										
+										echo '<tr>';
+											echo '<td>'.$x++.'</td>';
+											echo '<td>'.$row_view["supply_id"].'</td>';
+											echo '<td>'.$row_product["name"].'</td>';
+											echo '<td>'.$row_view["quantity"].'</td>';
+										echo '</tr>';
+									}
+									?>
+								</tbody>
 							</table>
 						</div>
 					</div>
