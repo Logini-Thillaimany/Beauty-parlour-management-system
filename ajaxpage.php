@@ -472,11 +472,20 @@ if(isset($_GET["frompage"]))
 		$get_ajax_servicedate = $_GET["ajax_servicedate"];
 		$get_ajax_servicetime = $_GET["ajax_servicetime"];
 
-		$select_acive_staff="SELECT staff_id FROM staff WHERE staff_id IN (SELECT staff_id FROM login WHERE status='Active')";
+		if($_SESSION["session_booking_type"]=="CA01")
+		{
+			$designation_staff="MakeupArtist";
+		}
+		else if($_SESSION["session_booking_type"]=="CA02")
+		{
+			$designation_staff="SaloonService";
+		}
+
+		$sql_acive_staff="SELECT staff_id FROM staff WHERE designation='$designation_staff' AND staff_id  IN (SELECT user_id FROM login WHERE status='Active')";
 		$result_acive_staff=mysqli_query($con,$sql_acive_staff) or die("sql error in sql_acive_staff".mysqli_error($con));
 		$no_of_active_staff=mysqli_num_rows($result_acive_staff);
 
-		$sql_leave_staff="SELECT staff_id FROM staffleave WHERE status='Approved' AND startdate<='$get_ajax_servicedate' AND enddate>='$get_ajax_servicedate'";
+		$sql_leave_staff="SELECT staff_id FROM staffleave WHERE status='Approved' AND startdate<='$get_ajax_servicedate' AND enddate>='$get_ajax_servicedate' AND staff_id IN (SELECT staff_id FROM staff WHERE designation='$designation_staff' AND staff_id  IN (SELECT user_id FROM login WHERE status='Active'))";
 		$result_leave_staff=mysqli_query($con,$sql_leave_staff) or die("sql error in sql_leave_staff ".mysqli_error($con));
 		$no_of_leave_staff=mysqli_num_rows($result_leave_staff);
 		
@@ -494,17 +503,16 @@ if(isset($_GET["frompage"]))
 			$sql_check="SELECT duration FROM package WHERE package_id='$row_load_package[package_id]'";
 			$result_check=mysqli_query($con,$sql_check) or die("sql error in sql_check ".mysqli_error($con));
 			$row_check=mysqli_fetch_assoc($result_check);
-			if(mysqli_num_rows($result_check)>0)
-			{
-				$duration=$duration+$row_check["duration"];
-			}
+			$duration=$duration+$row_check["duration"];
 		}
+		$endtime=date("H:i:s", strtotime($get_ajax_servicetime) + ($duration * 60));
 
-		$sql_check_bookings="SELECT booking_id FROM booking WHERE servicedate='$get_ajax_servicedate' AND booking_id != '$get_ajax_booking_id'";
+		$sql_check_bookings="SELECT booking_id FROM booking WHERE servicedate='$get_ajax_servicedate' AND booking_id != '$get_ajax_booking_id' AND (status= 'Accept' OR status='Pending')";
 		$result_check_bookings=mysqli_query($con,$sql_check_bookings) or die("sql error in sql_check_bookings ".mysqli_error($con));
 		while($row_check_bookings=mysqli_fetch_assoc($result_check_bookings))
 		{
-			$sql_check_package="SELECT * FROM bookingpackage WHERE booking_id='$row_view[booking_id]' AND startstarttime<='$get_ajax_servicetime' OR endtime>='$get_ajax_servicetime+$duration'";
+
+			$sql_check_package="SELECT * FROM bookingpackage WHERE booking_id='$row_check_bookings[booking_id]' AND (starttime>='$get_ajax_servicetime' AND starttime<='$endtime')";
 			$result_check_package=mysqli_query($con,$sql_check_package) or die("sql error in sql_check_package ".mysqli_error($con));
 			if(mysqli_num_rows($result_check_package)>0)
 			{
@@ -512,8 +520,10 @@ if(isset($_GET["frompage"]))
 			}
 		}
 
+		//check if all packages are available
+		$remaining= $N0_staff_available-$available;
 		
-		if($mysqli_num_rowa($row_load_package)==$available)
+		if((mysqli_num_rows($result_check_bookings)==0 || $remaining>0) && $endtime<="20:00:00")
 		{//all packages are available
 			echo 'Yes';
 		}
@@ -521,31 +531,23 @@ if(isset($_GET["frompage"]))
 		{//some packages are not available
 			echo 'No';
 		}
+	}
+	if($_GET["frompage"]=="bookingsales_product")
+	{//Check availableity of the selected product for sale
+		$get_ajax_productid = $_GET["ajax_productid"];
+		$today = date("Y-m-d");
 
+		$sql_max="SELECT sum(quantity) as totalquantity FROM stock WHERE product_id='$get_ajax_productid' AND purchase_id IN (SELECT purchase_id FROM purchaseproduct WHERE expiredate>='$today' AND product_id='$get_ajax_productid')";
+		$result_max=mysqli_query($con,$sql_max) or die("sql error in sql_max ".mysqli_error($con));
+		$row_max=mysqli_fetch_assoc($result_max);
 
+		$sql_checkprice="SELECT price,offer from productprice WHERE product_id='$get_ajax_productid' AND enddate IS NULL";
+		$result_checkprice=mysqli_query($con,$sql_checkprice) or die("sql error in sql_checkprice ".mysqli_error($con));
+		$row_checkprice=mysqli_fetch_assoc($result_checkprice);
+		$unit_price=$row_checkprice["price"]*(1-$row_checkprice["offer"]/100);
 
+		echo $row_max["totalquantity"]."****".$unit_price;
 	}
 	
-	if($_GET["frompage"]=="booking_totalamount")
-	{//Get Total  from of the selected sub category for booking package
-		$get_ajax_booking_id = $_GET["ajax_booking_id"];
-		
-		$sql_load_package="SELECT package_id FROM bookingpackage WHERE booking_id='$get_ajax_booking_id' AND package_id IN (SELECT package_id FROM packageprice WHERE enddate IS NULL)";
-		$result_load_package=mysqli_query($con,$sql_load_package) or die("sql error in sql_load_package".mysqli_error($con));
-		while($row_load_package=mysqli_fetch_assoc($result_load_package))
-		{
-			$sql_load_price="SELECT price,offer FROM packageprice WHERE package_id='".$row_load_package["package_id"]."' AND enddate IS NULL";
-			$result_load_price=mysqli_query($con,$sql_load_price) or die("sql error in sql_load_price".mysqli_error($con));
-			$row_load_price=mysqli_fetch_assoc($result_load_price);
-			if(isset($totalamount))
-			{
-				$totalamount=$totalamount+$row_load_price["price"];
-			}
-			else
-			{
-				$totalamount=$row_load_price["price"];
-			}
-		}
-	}
 }
 ?>

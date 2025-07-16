@@ -165,13 +165,36 @@ if(isset($_POST["btnsave"]))
 		}
 
 	</script>
+<!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+	<style>
+		/* Common button style */
+		.custom-btn {
+			width: 120px;          
+			height: 40px;              
+			font-weight: bold;
+			font-size: 14px;
+			color: white;
+			border: none;
+			border-radius: 10px;        
+			cursor: pointer;
+			transition: 0.3s ease;
+			margin-right: 10px; 
+		}
+		/* Optional: Hover effect */
+		.custom-btn:hover {
+			opacity: 0.8;
+		}
+	</style>
 <body>
 
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-header">
-						<div class="card-title"> Form for Customer Registation</div>
+						<div class="card-title"><center>Form for Customer Registation<center/></div>
 					</div>
 					<div class="card-body">
 						<div class="row">
@@ -295,9 +318,9 @@ if(isset($_POST["btnsave"]))
 									<div class="row">
 										<div class="col-md-6 col-lg-12">	
 											<center>
-												<a href="index.php"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
-												<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
-												<input type="submit" class="btn btn-success" name="btnsave" id="btnsave"  value="Register"/>
+												<a href="index.php"><input type="button" class="custom-btn btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
+												<input type="reset" class="custom-btn  btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
+												<input type="submit" class="custom-btn btn btn-success" name="btnsave" id="btnsave"  value="Register"/>
 											</center>
 										</div>
 									</div>

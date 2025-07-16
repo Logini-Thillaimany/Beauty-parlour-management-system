@@ -105,12 +105,12 @@ if(isset($_POST["btnsavechanges"]))
 //update code end
 ?>
 <script>
-		function popup_advertisement(imageName)
-		{
-			document.getElementById("popup_title").innerHTML='Advertisement Image';
-			document.getElementById("popup_body").innerHTML='<img src="file/advertisement/'+imageName+'" width="100%" height="100%">';
-		}
-		</script>
+	function popup_advertisement(imageName)
+	{
+		document.getElementById("popup_title").innerHTML='Advertisement Image';
+		document.getElementById("popup_body").innerHTML='<img src="file/advertisement/'+imageName+'" width="100%" height="100%">';
+	}
+</script>
 <body>
 <?php
 if(isset($_GET["option"]))

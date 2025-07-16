@@ -51,19 +51,19 @@ if(isset($_GET["option"]))
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
-					<div class="card-header">
+					<div class="card-header justify-content-center">
 						<div class="card-title"> Compose Messsage</div>
 					</div>
 					<div class="card-body">
-						<div class="row">
+						<div class="row justify-content-center" >
 							<!-- form start -->
-							<form method="POST" action="">
+							<form method="POST" action="" class="col-md-12">
 								
 								<!-- one row start -->
 								<div class="form-group">
-									<div class="row">
+									<div class="row justify-content-center">
 										<!-- column one start -->
-										<div class="col-md-6 col-lg-6">									
+										<div class="col-md-8 col-lg-6">									
 											<label for="txtmessageid">message ID</label>
 											<?php
 												$sql_generatedid="SELECT message_id FROM message ORDER BY message_id DESC LIMIT 1";
@@ -82,7 +82,7 @@ if(isset($_GET["option"]))
 										</div>
 										<!-- column one end -->
 										<!-- column two start -->
-										<div class="col-md-6 col-lg-6">
+										<div class="col-md-8 col-lg-6">
 											<label for="txtformid">From id</label>
 											<input type="text" class="form-control" name="txtformid" id="txtformid" value="<?php echo $system_username; ?>" readonly required placeholder="From"/>
 										</div>

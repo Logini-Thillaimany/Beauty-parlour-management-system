@@ -61,14 +61,56 @@ if(isset($_POST["btnlogin"]))
 //Login submit end
 
 ?>
+<!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+<style>
+	body	{
+		background-image: url("assets/img/kaiadmin/login_background.jpg");		
+		/* Button Styling */
+        .btn-custom {
+            border-radius: 10px;
+			height: 30px;
+			Width: 100px;
+            background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+            border: none;
+            color: white;
+        }
+	
+        .btn-custom:hover {
+            background: linear-gradient(to right, #d8363a, #ee7724);
+            color: white;
+        }
+		/* Clear Button Styling */
+        .btn-clear {
+            border-radius: 10px;
+			height: 30px;
+			Width: 100px;
+            background: linear-gradient(to right, #fccb90, #f57d7d, #f78ca0);
+            border: none;
+            color: white;
+            transition: background 0.3s ease;
+        }
+        .btn-clear:hover {
+            background: linear-gradient(to right, #f57d7d, #f78ca0);
+        }
+		/* Common size for both buttons */
+		.btn-equal {
+		width: 150px;
+		height: 40px; 
+		display: inline-block; 
+		text-align: center; 
+		}
 
+    </style>
 <body>
 
 <div class="row" >
 	<div class="col-md-12">
 		<div class="card">
 			<div class="card-header">
-				<div class="card-title">Login</div>
+				<div class="card-title"><center>Login<centre/></div>
 			</div>
 			<div class="card-body">
 				<div class="row">
@@ -90,7 +132,7 @@ if(isset($_POST["btnlogin"]))
 								<div class="col-md-3 col-lg-3"></div>
 								<div class="col-md-6 col-lg-6">
 									<label for="txtname">Password</label>
-									<input type="password" class="form-control" name="txtpassword" id="txtpassword" required placeholder="Enter Password"/>
+									<input type="password" class="form-control mx-auto" name="txtpassword" id="txtpassword" required placeholder="Enter Password"/>
 								</div>
 								<div class="col-md-3 col-lg-3"></div>
 								<!-- row two end -->
@@ -104,9 +146,9 @@ if(isset($_POST["btnlogin"]))
 							<div class="row">
 								<div class="col-md-6 col-lg-12">	
 									<center>
-										<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
+										<input type="reset" class="btn btn-clear btn-equal" name="btnclear" id="btnclear"  value="Clear"/>
 										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										<input type="submit" class="btn btn-success" name="btnlogin" id="btnlogin"  value="Login"/>
+										<input type="submit" class="btn btn-custom btn-equal" name="btnlogin" id="btnlogin"  value="Login"/>
 									</center>
 								</div>
 							</div>
@@ -117,7 +159,7 @@ if(isset($_POST["btnlogin"]))
 							<div class="col-md-6 col-lg-12">
 								<a href="index.php?page=forgetpassword.php" class="text-muted">Forgot password?</a>
 								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-								<a href="#  " class="text-muted">Create a user profile.</a> 
+								<a href="index.php?page=register.php" class="text-muted">Create a user profile.</a> 
 								<!-- add the link for custermer register page-->
 							</div>
                         </div>

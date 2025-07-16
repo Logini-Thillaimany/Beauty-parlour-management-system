@@ -326,7 +326,15 @@ if(isset($_GET["option"]))
 					</div>
 					<div class="card-body">
 						<div class="table-responsive">
-							<a href="index.php?page=package.php&option=add"><button class="btn btn-primary">Add package</button></a><br><br>
+							<?php
+							if(isset($_GET["page"])) 
+							{
+							?>
+								<a href="index.php?page=package.php&option=add"><button class="btn btn-primary">Add package</button></a> &nbsp;&nbsp;&nbsp;
+								<a href="print.php?print=package.php&option=view" target="_blank"><button class="btn btn-primary">Print package</button></a><br><br>
+							<?php
+							}
+							?>
 							<table id="basic-datatables" class="display table table-striped table-hover">
 								<thead>
 									<tr>
@@ -334,7 +342,14 @@ if(isset($_GET["option"]))
 										<th>Name</th>
 										<th>Duration</th>
 										<th>Subcategory</th>
-										<th>Action</th>
+										<?php
+										if(isset($_GET["page"]))
+										{
+										?>
+											<th>Action</th>
+										<?php
+										}
+										?>
 									</tr>
 								</thead>
 								<tbody>
@@ -366,6 +381,8 @@ if(isset($_GET["option"]))
 											echo '<td>'.$row_view["name"].'</td>';
 											echo '<td>'.$visibleDuration.'</td>';
 											echo '<td>'.$row_subcategoryname["name"].'</td>';
+											if(isset($_GET["page"]))
+											{
 											echo '<td>';
 												echo '<a href="index.php?page=package.php&option=fullview&pk_package_id='.$row_view["package_id"].'"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a> ';
 												if(mysqli_num_rows($result_checkprice)>0)
@@ -377,6 +394,7 @@ if(isset($_GET["option"]))
 													}
 												}
 											echo '</td>';
+											}
 										echo '</tr>';
 									}
 									?>

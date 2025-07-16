@@ -30,7 +30,10 @@ if(isset($_SESSION["forgetchange_username"]))
 		}	
 	}
 ?>
-
+<!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
 <script>
 	function check_password()
 	{

@@ -406,12 +406,16 @@ if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="
 						</div>
 						<div class="card-body">
 							<div class="table-responsive">
-							<?php 
-							if($system_usertype=="Admin" || $system_usertype=="Clerk")
+							<?php
+							if(isset($_GET["page"])) 
 							{
-							?>
-								<a href="index.php?page=staff.php&option=add"><button class="btn btn-primary">Add Staff</button></a><br><br>
-							<?php 
+								if($system_usertype=="Admin" || $system_usertype=="Clerk")
+								{
+								?>
+									<a href="index.php?page=staff.php&option=add"><button class="btn btn-primary">Add Staff</button></a> &nbsp;&nbsp;&nbsp;
+									<a href="print.php?print=staff.php&option=view" target="_blank"><button class="btn btn-primary">Print Staff</button></a><br><br>
+								<?php 
+								}
 							}
 							?>
 								<table id="basic-datatables" class="display table table-striped table-hover">
@@ -422,7 +426,14 @@ if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="
 											<th>NIC</th>
 											<th>Designation</th>
 											<th>Mobile</th>
-											<th>Action</th>
+											<?php
+											if(isset($_GET["page"]))
+											{
+											?>
+												<th>Action</th>
+											<?php
+											}
+											?>
 										</tr>
 									</thead>
 									<tbody>
@@ -442,6 +453,8 @@ if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="
 												echo '<td>'.$row_view["nic"].'</td>';
 												echo '<td>'.$row_view["designation"].'</td>';
 												echo '<td>0'.$row_view["mobile"].'</td>';
+												if(isset($_GET["page"]))
+												{
 												echo '<td>';
 													echo '<a href="index.php?page=staff.php&option=fullview&pk_staff_id='.$row_view["staff_id"].'"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a> ';
 													if($row_loginstatus["status"]=="Active")
@@ -460,6 +473,7 @@ if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="
 														echo '<a onclick="return reactivate_confirm()" href="index.php?page=staff.php&option=reactivate&pk_staff_id='.$row_view["staff_id"].'"><button class="btn btn-info btn-sm"><i class="fa fa-undo"></i> Re-activate</button></a> ';
 													}
 												echo '</td>';
+												}
 											echo '</tr>';
 										}
 										?>
@@ -504,6 +518,10 @@ if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="
 									<tr><th>Address</th><td><?php echo $row_fullview["address"]; ?></td></tr>
 									<tr><th>Mobile</th><td>0<?php echo $row_fullview["mobile"]; ?></td></tr>
 									<tr><th>Joint Date</th><td><?php echo $row_fullview["jointdate"]; ?></td></tr>
+									<?php
+									if(isset($_GET["page"]))
+									{
+									?>
 									<tr>								
 										<td colspan="2">
 											<center>
@@ -512,13 +530,17 @@ if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="
 												if($row_loginstatus["status"]=="Active" && ($system_usertype=="Admin" || $system_usertype=="Clerk"))
 												{
 												?>
-													<a href="index.php?page=staff.php&option=edit&pk_staff_id=<?php echo $row_fullview["staff_id"]; ?>"><button class="btn btn-info">Edit</button></a> 
+													<a href="index.php?page=staff.php&option=edit&pk_staff_id=<?php echo $row_fullview["staff_id"]; ?>"><button class="btn btn-info">Edit</button></a>
+													<a href="print.php?print=staff.php&option=fullview&pk_staff_id=<?php echo $row_fullview["staff_id"]; ?>" target="_blank"><button class="btn btn-success">Print</button></a> 
 												<?php
 												}
 												?>
 											</center>
 										</td>
 									</tr>
+									<?php
+									}
+									?>
 								</table>
 							</div>
 						</div>

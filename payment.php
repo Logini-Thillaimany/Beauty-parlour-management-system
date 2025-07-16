@@ -18,19 +18,68 @@ include("connection.php");
 //insert code start
 if(isset($_POST["btnsave"]))
 {
-	$sql_insert="INSERT INTO payment(payment_id,booking_id,paydate,paymode,payamount,paystatus,slipphoto)
+	$allowed=0;
+	if($system_usertype=="Clerk" || $system_usertype=="Admin")
+	{
+		$status="Paid";
+		$allowed=1;
+		if($_POST["txtpaymode"]=="Cash")
+		{
+			$filename="";
+		}
+		else
+		{
+			$target_dir = "file/payment/";
+			$target_file = $target_dir . basename($_FILES["txtimage"]["name"]);
+			$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+			if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg")
+			{
+				echo '<script>alert("Sorry, only JPG, JPEG & PNG  files are allowed.");</script>';
+			}
+			else
+			{
+				$filename=$_POST["txtpaymentid"].".".$imageFileType;
+				$fileupload=$target_dir . $filename;
+				move_uploaded_file($_FILES["txtimage"]["tmp_name"], $fileupload);
+				$allowed=1;
+			}
+		}
+	}
+	else
+	{
+		$status="Pending";
+
+		$target_dir = "file/payment/";
+		$target_file = $target_dir . basename($_FILES["txtimage"]["name"]);
+		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+		if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg")
+		{
+			echo '<script>alert("Sorry, only JPG, JPEG & PNG  files are allowed.");</script>';
+		}
+		else
+		{
+		$filename=$_POST["txtpaymentid"].".".$imageFileType;
+		$fileupload=$target_dir . $filename;
+		move_uploaded_file($_FILES["txtimage"]["tmp_name"], $fileupload);
+		$allowed=1;
+		}
+	}
+	if($allowed==1)
+	{
+		$sql_insert="INSERT INTO payment(payment_id,booking_id,paydate,paymode,payamount,paystatus,slipphoto)
 							VALUES('".mysqli_real_escape_string($con,$_POST["txtpaymentid"])."',
 									'".mysqli_real_escape_string($con,$_POST["txtbookingid"])."',
 									'".mysqli_real_escape_string($con,$_POST["txtdate"])."',
 									'".mysqli_real_escape_string($con,$_POST["txtpaymode"])."',
 									'".mysqli_real_escape_string($con,$_POST["txtamount"])."',
-									'".mysqli_real_escape_string($con,$_POST["txtstatus"])."',
-									'".mysqli_real_escape_string($con,$_POST["txtimage"])."')";
-	$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
-	if($result_insert)
-	{
+									'".mysqli_real_escape_string($con,$status)."',
+									'".mysqli_real_escape_string($con,$filename)."')";
+		$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
+		if($result_insert)
+		{
 		echo '<script>alert("Successfully Insert");
-						window.location.href="index.php?page=payment.php&option=add";</script>';
+						window.location.href="index.php?page=booking.php&option=fullview&pk_booking_id='.$_POST["txtbookingid"].'";</script>';
+		}
 	}
 }
 //insert code end
@@ -54,7 +103,75 @@ if(isset($_POST["btnsavechanges"]))
 	}
 }
 //update code end
+
+//insert sale payment code start
+if(isset($_POST["btnsavesale"]))
+{
+	$allowed=0;
+	if($_POST["txtpaymode"]=="Cash")
+	{
+		$filename="";
+		$status="Paid";
+		$allowed=1;
+
+	}
+	else
+	{
+		$target_dir = "file/payment/";
+		$target_file = $target_dir . basename($_FILES["txtimage"]["name"]);
+		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+		if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg")
+		{
+			echo '<script>alert("Sorry, only JPG, JPEG & PNG  files are allowed.");</script>';
+		}
+		else
+		{
+			$filename=$_POST["txtpaymentid"].".".$imageFileType;
+			$fileupload=$target_dir . $filename;
+			move_uploaded_file($_FILES["txtimage"]["tmp_name"], $fileupload);
+			$status="Paid";
+			$allowed=1;
+		}
+	}
+	if($allowed==1)
+	{
+		$sql_insert="INSERT INTO payment(payment_id,booking_id,paydate,paymode,payamount,paystatus,slipphoto)
+							VALUES('".mysqli_real_escape_string($con,$_POST["txtpaymentid"])."',
+									'".mysqli_real_escape_string($con,$_POST["txtbookingid"])."',
+									'".mysqli_real_escape_string($con,$_POST["txtdate"])."',
+									'".mysqli_real_escape_string($con,$_POST["txtpaymode"])."',
+									'".mysqli_real_escape_string($con,$_POST["txtamount"])."',
+									'".mysqli_real_escape_string($con,$status)."',
+									'".mysqli_real_escape_string($con,$filename)."')";
+		$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
+		if($result_insert)
+		{
+		echo '<script>alert("Successfully Insert");
+						window.location.href="index.php?page=bookingsales.php&option=fullview&pk_booking_id='.$_POST["txtbookingid"].'";</script>';
+		}
+	}
+}
+//insert code end
 ?>
+<script>
+	function active_slip()
+	{
+		var paymode=document.getElementById("txtpaymode").value;
+		if(paymode=="Cash" )
+		{
+			document.getElementById("txtimage").value="";
+			document.getElementById("txtimage").readOnly=true;
+			document.getElementById("txtimage").type="text";
+		}
+		else 
+		{
+			document.getElementById("txtimage").value="";
+			document.getElementById("txtimage").readOnly=false;
+			document.getElementById("txtimage").type="file";
+		}
+		
+	}
+</script>
 <body>
 <?php
 if(isset($_GET["option"]))
@@ -62,6 +179,7 @@ if(isset($_GET["option"]))
 	if($_GET["option"]=="add")
 	{
 		//add form
+		$get_pk_booking_id=$_GET["pk_booking_id"];
 		?>
 		<div class="row">
 			<div class="col-md-12">
@@ -72,7 +190,7 @@ if(isset($_GET["option"]))
 					<div class="card-body">
 						<div class="row">
 							<!-- form start -->
-							<form method="POST" action="">
+							<form method="POST" action="" enctype="multipart/form-data">
 								
 								<!-- one row start -->
 								<div class="form-group">
@@ -99,17 +217,7 @@ if(isset($_GET["option"]))
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtbookingid">Booking ID</label>
-											<select class="form-control" name="txtbookingid" id="txtbookingid" required placeholder="Booking id">
-												<option value="select">Select Booking </option>
-												<?php
-												$sql_load_booking="SELECT booking_id FROM booking ";
-												$result_load_booking=mysqli_query($con,$sql_load_booking) or die("sql error in sql_load_booking".mysqli_error($con));
-												while($row_load_booking=mysqli_fetch_assoc($result_load_booking))
-												{
-													echo'<option value="'.$row_load_booking["booking_id"].'">'.$row_load_booking["booking_id"].'</option>';
-												}
-												?>
-											</select>
+											<input type="text" class="form-control" name="txtbookingid" id="txtbookingid" required placeholder="Booking id" value="<?php echo $get_pk_booking_id;?>" readonly />
 										</div>
 										<!-- column two end -->
 									</div>
@@ -121,51 +229,125 @@ if(isset($_GET["option"]))
 									<div class="row">
 										<!-- column one start -->
 										<div class="col-md-6 col-lg-6">									
-											<label for="txtpaymode">Pay mode</label>
-											<input type="text" class="form-control" name="txtpaymode" id="txtpaymode" required placeholder="Paymode"/>
+											<label for="txtdate">Pay date</label>
+											<input type="date" class="form-control" value="<?php echo date('Y-m-d');?>" name="txtdate" id="txtdate" required placeholder="date" readonly/>
 										</div>
 										<!-- column one end -->
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
-											<label for="txtdate">Pay date</label>
-											<input type="date" class="form-control" name="txtdate" id="txtdate" required placeholder="date"/>
 										</div>
 										<!-- column two end -->
 									</div>
 								</div>
 								<!-- second row end -->
+								 <!-- third row start -->
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-2"></div>
+										<div class="col-md-8">
+										<table  class="display table table-striped table-hover">
+											<tbody>
+												<?php
+												$sql_total="SELECT totalamount FROM booking WHERE booking_id='$get_pk_booking_id'";
+												$result_total=mysqli_query($con,$sql_total) or die("sql error in sql_total ".mysqli_error($con));
+												$row_total=mysqli_fetch_assoc($result_total);
+
+												$sql_paied_amount= "SELECT SUM(payamount) AS total_pay FROM payment WHERE booking_id='$get_pk_booking_id'";
+												$result_paied_amount=mysqli_query($con,$sql_paied_amount) or die("sql error in sql_paied_amount ".mysqli_error($con));	
+												$row_paied_amount=mysqli_fetch_assoc($result_paied_amount);
+
+												$Total_amount=$row_total["totalamount"];
+												$Paied_amount=$row_paied_amount["total_pay"];
+												$balance=$Total_amount- $Paied_amount;
+
+												
+													echo '<tr>';
+														echo '<td>Total Amount:</td>';
+														echo '<td>'.$Total_amount.'</td>';
+													echo '</tr>';
+													echo '<tr>';	
+														echo '<td>Amount you have paied :</td>';
+														echo '<td>'.$Paied_amount.'</td>';
+													echo '</tr>';
+													echo '<tr>';
+														echo '<td>Balance amount to pay :</td>';
+														echo '<td>'.$balance.'</td>';
+													echo '</tr>';
+												?>
+											</tbody>
+										</table>
+										</div>
+										<div class="col-md-2"></div>
+									</div>
+								</div>
+								<!-- third row end -->
 								
-								<!-- third row start -->
+								<!-- forth row start -->
 								<div class="form-group">
 									<div class="row">
 										<!-- column one start -->
 										<div class="col-md-6 col-lg-6">									
 											<label for="txtamount">Amount</label>
-											<input type="text" onkeypress="return isNumberKey(event)" class="form-control" name="txtamount" id="txtamount" required placeholder="amount to pay"/>
+											<?php 
+												if($Paied_amount==0)
+												{
+													$min= $Total_amount*0.3;//30% of the total amount
+													$max=$Total_amount;
+												}
+												else
+												{
+													$min= 1;
+													$max=$balance;
+												}
+											?>
+											<input type="number" onkeypress="return isNumberKey(event)" min="<?php echo $min; ?>" max="<?php echo $max; ?>" class="form-control" name="txtamount" id="txtamount" required placeholder="amount to pay"/>
 										</div>
 										<!-- column one end -->
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
-											<label for="txtstatus">status</label>
-											<input type="text" class="form-control" name="txtstatus" id="txtstatus" required placeholder="Status"/>
+											<label for="txtpaymode">Pay mode</label>
+											<select class="form-control" name="txtpaymode" id="txtpaymode" onChange="active_slip()" required placeholder="Paymode">
+												<?php
+												if($system_usertype=="Clerk" ||$system_usertype=="Admin")
+												{
+													echo'<option value="Cash">Cash</option>';
+													echo'<option value="Bank">Bank</option>';
+												}
+												else
+												{
+													echo'<option value="Bank">Bank</option>';
+												}	
+												?>
+											</select>
 										</div>
 										<!-- column two end -->
 									</div>
 								</div>
-								<!-- third row end -->
+								<!-- forth row end -->
 								
-								<!-- fourth row start -->
+								<!-- fifth row start -->
 								<div class="form-group">
 									<div class="row">
 										<!-- column one start -->
-										<div class="col-md-6 col-lg-6">									
+										<div class="col-md-6 col-lg-6">	
+
 											<label for="txtimage"> Slipt image</label>
-											<input type="txt" class="form-control"  name="txtimage" id="txtimage" required placeholder="image"/>
+											<?php
+												if($system_usertype=="Clerk" ||$system_usertype=="Admin")
+												{
+													echo '<input type="text" class="form-control"  name="txtimage" id="txtimage" required placeholder="image" readonly />';
+												}
+												else
+												{
+													echo '<input type="file" class="form-control"  name="txtimage" id="txtimage" required placeholder="image"/>';
+												}
+												?>
+											<font color="red"> *Only the image types can be upload (eg: .jpg, .jpeg, .png)</font>
 										</div>
 										<!-- column one end -->
 									</div>
 								</div>
-								<!-- fourth row end -->
+								<!-- fifth row end -->
 								
 								
 								<!-- button start -->
@@ -173,7 +355,7 @@ if(isset($_GET["option"]))
 									<div class="row">
 										<div class="col-md-6 col-lg-12">	
 											<center>
-												<a href="index.php?page=payment.php&option=view"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
+												<a href="index.php?page=booking.php&option=fullview&pk_booking_id=<?php echo $get_pk_booking_id; ?>"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
 												<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
 												<input type="submit" class="btn btn-success" name="btnsave" id="btnsave"  value="Save"/>
 											</center>
@@ -412,6 +594,126 @@ if(isset($_GET["option"]))
 		</div>
 		<?php
 	}
+	if($_GET["option"]=="sale")
+	{
+		//add sale payment form
+		$get_pk_booking_id=$_GET["pk_booking_id"];
+		?>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-header">
+						<div class="card-title">Sales payment</div>
+					</div>
+					<div class="card-body">
+						<div class="row">
+							<!-- form start -->
+							<form method="POST" action="" enctype="multipart/form-data">
+								
+								<!-- one row start -->
+								<div class="form-group">
+									<div class="row">
+										<!-- column one start -->
+										<div class="col-md-6 col-lg-6">									
+											<label for="txtpaymentid">Payment ID</label>
+											<?php
+												$sql_generatedid="SELECT payment_id FROM payment ORDER BY payment_id DESC LIMIT 1";
+												$result_generatedid=mysqli_query($con,$sql_generatedid) or die("sql error in sql_generatedid ".mysqli_error($con));
+												if(mysqli_num_rows($result_generatedid)==1)
+												{// for  except from the first submission
+													$row_generatedid=mysqli_fetch_assoc($result_generatedid);
+													$generatedid=++$row_generatedid["payment_id"];
+												}
+												else
+												{//For first time submission
+													$generatedid="PAY0000001";
+												}
+											?>
+											<input type="text" class="form-control" name="txtpaymentid" id="txtpaymentid" required placeholder="payment ID" value="<?php echo $generatedid;?>" readonly />
+										</div>
+										<!-- column one end -->
+										<!-- column two start -->
+										<div class="col-md-6 col-lg-6">
+											<label for="txtbookingid">Sales ID</label>
+											<input type="text" class="form-control" name="txtbookingid" id="txtbookingid" required placeholder="Booking id" value="<?php echo $get_pk_booking_id;?>" readonly />
+										</div>
+										<!-- column two end -->
+									</div>
+								</div>
+								<!-- one row end -->
+								
+								<!-- second row start -->
+								<div class="form-group">
+									<div class="row">
+										<!-- column one start -->
+										<div class="col-md-6 col-lg-6">									
+											<label for="txtdate">Pay date</label>
+											<input type="date" class="form-control" value="<?php echo date('Y-m-d');?>" name="txtdate" id="txtdate" required placeholder="date" readonly/>
+										</div>
+										<!-- column one end -->
+										<!-- column two start -->
+										<div class="col-md-6 col-lg-6">
+											<label for="txtamount">Amount</label>
+											<?php
+												$sql_total="SELECT totalamount FROM booking WHERE booking_id='$get_pk_booking_id'";
+												$result_total=mysqli_query($con,$sql_total) or die("sql error in sql_total ".mysqli_error($con));
+												$row_total=mysqli_fetch_assoc($result_total);
+												$amount=$row_total["totalamount"];
+											?>
+											<input type="number"  class="form-control" onkeypress="return isNumberKey(event)" value="<?php echo $amount; ?>" class="form-control" name="txtamount" id="txtamount" readonly required placeholder="amount to pay"/>
+										</div>
+										<!-- column two end -->
+									</div>
+								</div>
+								<!-- second row end -->
+
+								<!-- third row start -->
+								<div class="form-group">
+									<div class="row">
+										<!-- column one start -->
+										<div class="col-md-6 col-lg-6">									
+											<label for="txtpaymode">Pay mode</label>
+											<select class="form-control" name="txtpaymode" id="txtpaymode" onChange="active_slip()" required placeholder="Paymode">
+												<option value="Cash">Cash</option>
+												<option value="Bank">Bank</option>
+											</select>
+										</div>
+										<!-- column one end -->
+										<!-- column two start -->
+										<div class="col-md-6 col-lg-6">
+											<label for="txtimage"> Slipt image</label>
+											<input type="text" class="form-control"  name="txtimage" id="txtimage" required placeholder="image" readonly />
+											<font color="red"> *Only the image types can be upload (eg: .jpg, .jpeg, .png)</font>
+										</div>
+										<!-- column two end -->
+									</div>
+								</div>
+								<!-- forth row end -->
+								
+								<!-- button start -->
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-6 col-lg-12">	
+											<center>
+												<a href="index.php?page=bookingsales.php&option=fullview&pk_booking_id=<?php echo $get_pk_booking_id; ?>"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
+												<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
+												<input type="submit" class="btn btn-success" name="btnsavesale" id="btnsavesale"  value="Save"/>
+											</center>
+										</div>
+									</div>
+								</div>
+								<!-- button end -->
+								
+							</form>
+							<!-- form end -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+	//delete code
 	else if($_GET["option"]=="delete")
 	{
 		//delete code
@@ -423,6 +725,21 @@ if(isset($_GET["option"]))
 		{
 			echo '<script>alert("Successfully Delete");
 						window.location.href="index.php?page=payment.php&option=view";</script>';
+		}
+	}
+	else if($_GET["option"]=="status")
+	{
+		//delete code
+		$get_pk_payment_id=$_GET["pk_payment_id"];
+		$get_pk_booking_id=$_GET["pk_booking_id"];
+		$get_Status=$_GET["Status"];
+		
+		$sql_update="UPDATE payment SET paystatus='$get_Status' WHERE payment_id='$get_pk_payment_id'";
+		$result_update=mysqli_query($con,$sql_update) or die("sql error in sql_update ".mysqli_error($con));
+		if($result_update)		
+		{
+			echo '<script>alert("Successfully Update Status");
+						window.location.href="index.php?page=booking.php&option=fullview&pk_booking_id='.$get_pk_booking_id.'";</script>';
 		}
 	}
 }

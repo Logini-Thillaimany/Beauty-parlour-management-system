@@ -135,7 +135,7 @@ if(isset($_GET["option"]))
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-header">
-						<div class="card-title"> Form for Customer Addition</div>
+						<div class="card-title"><Center>Customer Registation<Center/></div>
 					</div>
 					<div class="card-body">
 						<div class="row">
@@ -243,7 +243,7 @@ if(isset($_GET["option"]))
 											<center>
 												<a href="index.php?page=customer.php&option=view"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
 												<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
-												<input type="submit" class="btn btn-success" name="btnsave" id="btnsave"  value="Save"/>
+												<input type="submit" class="btn btn-success" name="btnsave" id="btnsave"  value="Register"/>
 											</center>
 										</div>
 									</div>
@@ -271,14 +271,19 @@ if(isset($_GET["option"]))
 					</div>
 					<div class="card-body">
 						<div class="table-responsive">
-							<?php 
+						<?php
+						if(isset($_GET["page"])) 
+						{
+							
 							if($system_usertype=="Admin" || $system_usertype=="Clerk")
 							{
 							?>
-								<a href="index.php?page=customer.php&option=add"><button class="btn btn-primary">Add Customer</button></a><br><br>
+								<a href="index.php?page=customer.php&option=add"><button class="btn btn-primary">Add Customer</button></a>&nbsp;&nbsp;&nbsp;
+								<a href="print.php?print=customer.php&option=view" target="_blank"><button class="btn btn-primary">Print Customer</button></a><br><br>
 							<?php
 							}
-							?>
+						}
+						?>
 							<table id="basic-datatables" class="display table table-striped table-hover">
 								<thead>
 									<tr>
@@ -287,7 +292,14 @@ if(isset($_GET["option"]))
 										<th>E-mail</th>
 										<th>Mobile</th>
 										<th>Address</th>
-										<th>Action</th>
+										<?php
+										if(isset($_GET["page"]))
+										{
+										?>
+											<th>Action</th>
+										<?php
+										}
+										?>
 									</tr>
 								</thead>
 								<tbody>
@@ -306,6 +318,8 @@ if(isset($_GET["option"]))
 											echo '<td>'.$row_view["email"].'</td>';
 											echo '<td>0'.$row_view["mobile"].'</td>';
 											echo '<td>'.$row_view["address"].'</td>';
+											if(isset($_GET["page"]))
+											{
 											echo '<td>';
 												echo '<a href="index.php?page=customer.php&option=fullview&pk_customer_id='.$row_view["customer_id"].'"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a> ';
 												if($row_loginstatus["status"]=="Active")
@@ -324,6 +338,7 @@ if(isset($_GET["option"]))
 														echo '<a onclick="return reactivate_confirm()" href="index.php?page=customer.php&option=reactivate&pk_customer_id='.$row_view["customer_id"].'"><button class="btn btn-info btn-sm"><i class="fa fa-undo"></i> Re-activate</button></a> ';
 													}
 											echo '</td>';
+											}
 										echo '</tr>';
 									}
 									?>
@@ -367,6 +382,10 @@ if(isset($_GET["option"]))
 								<tr><th>Address</th><td><?php echo $row_fullview["address"]; ?></td></tr>
 								<tr><th>Mobile</th><td>0<?php echo $row_fullview["mobile"]; ?></td></tr>
 								<tr><th>Comments</th><td><?php echo $row_fullview["comments"]; ?></td></tr>
+								<?php
+								if(isset($_GET["page"]))
+								{
+								?>
 								<tr>			
 									<td colspan="2">
 										<center>
@@ -376,12 +395,16 @@ if(isset($_GET["option"]))
 											{
 											?>
 												<a href="index.php?page=customer.php&option=edit&pk_customer_id=<?php echo $row_fullview["customer_id"]; ?>"><button class="btn btn-info">Edit</button></a> 
+												<a href="print.php?print=staff.php&option=fullview&pk_customer_id=<?php echo $row_fullview["customer_id"]; ?>"  target="_blank"><button class="btn btn-success">Print</button></a> 
 											<?php
 											}
 											?>
 										</center>
 									</td>
 								</tr>
+								<?php
+								}
+								?>
 							</table>
 						</div>
 					</div>

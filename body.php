@@ -1,3 +1,51 @@
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Type', 'Number of Bookings'],
+          ['Saloon Service', 15],
+          ['Makeup',      7]
+        ]);
+
+        var options = {
+          title: 'Booking Details'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['bar']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Quarter', 'Saloon','Makeup'],
+          ['Q1', 45000, 50000],
+          ['Q2', 60000, 55000],
+          ['Q3', 70000, 60000],
+          ['Q4', 80000, 65000]
+        ]);
+
+        var options = {
+          chart: {
+            title: 'Parlor Booking'
+          }
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+      }
+    </script>
 <div class="row">
               <div class="col-sm-6 col-md-3">
                 <div class="card card-stats card-round">
@@ -12,8 +60,8 @@
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Visitors</p>
-                          <h4 class="card-title">1,294</h4>
+                          <p class="card-category">Customers</p>
+                          <h5 >12</h5>
                         </div>
                       </div>
                     </div>
@@ -25,16 +73,14 @@
                   <div class="card-body">
                     <div class="row align-items-center">
                       <div class="col-icon">
-                        <div
-                          class="icon-big text-center icon-info bubble-shadow-small"
-                        >
-                          <i class="fas fa-user-check"></i>
+                        <div class="icon-big text-center icon-info bubble-shadow-small">
+                          <i class="fas fa-solid fa-folder-open"></i>
                         </div>
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Subscribers</p>
-                          <h4 class="card-title">1303</h4>
+                          <p class="card-category">Packages</p>
+                          <h5 >30</h5>
                         </div>
                       </div>
                     </div>
@@ -55,7 +101,7 @@
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Sales</p>
-                          <h4 class="card-title">$ 1,345</h4>
+                          <h5 >LKR 235,560</h5>
                         </div>
                       </div>
                     </div>
@@ -75,8 +121,8 @@
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Order</p>
-                          <h4 class="card-title">576</h4>
+                          <p class="card-category">Bookings</p>
+                          <h5 >30</h5>
                         </div>
                       </div>
                     </div>
@@ -85,12 +131,12 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-md-8">
+              <div class="col-md-6">
                 <div class="card card-round">
                   <div class="card-header">
                     <div class="card-head-row">
-                      <div class="card-title">User Statistics</div>
-                      <div class="card-tools">
+                      <div class="card-title">Booking Statistics</div>
+                      <!--<div class="card-tools">
                         <a
                           href="#"
                           class="btn btn-label-success btn-round btn-sm me-2"
@@ -106,12 +152,44 @@
                           </span>
                           Print
                         </a>
-                      </div>
+                      </div>-->
                     </div>
                   </div>
                   <div class="card-body">
                     <div class="chart-container" style="min-height: 375px">
-                      <canvas id="statisticsChart"></canvas>
+                      <div id="piechart" style="width: 400px; height: 400px;"></div>
+                    </div>
+                    <div id="myChartLegend"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card card-round">
+                  <div class="card-header">
+                    <div class="card-head-row">
+                      <div class="card-title">Booking Statistics</div>
+                      <!--<div class="card-tools">
+                        <a
+                          href="#"
+                          class="btn btn-label-success btn-round btn-sm me-2"
+                        >
+                          <span class="btn-label">
+                            <i class="fa fa-pencil"></i>
+                          </span>
+                          Export
+                        </a>
+                        <a href="#" class="btn btn-label-info btn-round btn-sm">
+                          <span class="btn-label">
+                            <i class="fa fa-print"></i>
+                          </span>
+                          Print
+                        </a>
+                      </div>-->
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="chart-container" style="min-height: 375px">
+                      <div id="columnchart_material" style="width: 400px; height: 400px;"></div>
                     </div>
                     <div id="myChartLegend"></div>
                   </div>

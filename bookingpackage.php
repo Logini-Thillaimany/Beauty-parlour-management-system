@@ -202,9 +202,7 @@ if(isset($_GET["option"]))
 											<label for="txtpackageid">Package</label>
 											<select class="form-control" name="txtpackageid" id="txtpackageid" required placeholder="Package ID">
 												<option value="" disabled selected>Select Package</option>
-													<?php
 													
-													?>
 											</select>
 										</div>
 										<!-- column two end -->
@@ -253,6 +251,7 @@ if(isset($_GET["option"]))
 			</div>
 		</div>
 		<?php
+		//show booking package details
 		if(isset($_SESSION["session_booking_id"]))
 		{
 		?>
@@ -268,13 +267,15 @@ if(isset($_GET["option"]))
 									<th>#</th>
 									<th>Booking ID</th>
 									<th>Package </th>
+									<th>Unit Price </th>
 									<th>Action</th>
 								</tr>
 							</thead>
 							<tbody>
 								<?php
 								$x=1;
-								$sql_view="SELECT booking_id,package_id FROM bookingpackage";
+								$subTotal=0;
+								$sql_view="SELECT booking_id,package_id FROM bookingpackage WHERE booking_id='$_SESSION[session_booking_id]'";
 								$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
 								while($row_view=mysqli_fetch_assoc($result_view))
 								{
@@ -282,11 +283,20 @@ if(isset($_GET["option"]))
 									$sql_package="SELECT name from package WHERE package_id='$row_view[package_id]'";
 									$result_package=mysqli_query($con,$sql_package) or die("sql error in sql_package ".mysqli_error($con));
 									$row_package=mysqli_fetch_assoc($result_package);
+
+									//get unit price
+									$sql_price="SELECT price,offer FROM packageprice WHERE package_id='$row_view[package_id]' AND enddate IS NULL";
+									$result_price=mysqli_query($con,$sql_price) or die("sql error in sql_price ".mysqli_error($con));
+									$row_price=mysqli_fetch_assoc($result_price);
+
+									$unit_price=$row_price["price"]*(1-$row_price["offer"]/100);
+									$subTotal=$subTotal+$unit_price;
 									
 									echo '<tr>';
 										echo '<td>'.$x++.'</td>';
 										echo '<td>'.$row_view["booking_id"].'</td>';
 										echo '<td>'.$row_package["name"].'</td>';
+										echo '<td>'.$unit_price.'</td>';
 										echo '<td>';
 											echo '<a onclick="return delete_confirm()" href="index.php?page=bookingpackage.php&option=delete&pk_booking_id='.$row_view["booking_id"].'&pk_package_id='.$row_view["package_id"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Delete</button></a> ';
 										echo '</td>';
@@ -296,10 +306,11 @@ if(isset($_GET["option"]))
 									{
 										echo '<tr>';
 											echo '<td>'.$x++.'</td>';
+											echo '<td>Sub Total</td>';
 											echo '<td></td>';
-											echo '<td></td>';
+											echo '<td>'.$subTotal.'</td>';
 											echo '<td>';
-												echo '<a href="index.php?page=booking.php&option=add"><button class="btn btn-success btn-sm"><i class="fa fa-pen"></i> finish </button></a> ';
+												echo '<a href="index.php?page=booking.php&option=add&subTotal='.$subTotal.'"><button class="btn btn-success btn-sm"><i class="fa fa-pen"></i> finish </button></a> ';
 											echo '</td>';
 										echo '</tr>';
 									}

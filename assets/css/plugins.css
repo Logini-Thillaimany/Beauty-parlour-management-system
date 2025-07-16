@@ -156,7 +156,7 @@
 .ui-slider {
   position: relative;
   text-align: left;
-  background: #ddd; }
+  background: #cccccc; }
   .ui-slider .ui-slider-handle {
     position: absolute;
     z-index: 2;

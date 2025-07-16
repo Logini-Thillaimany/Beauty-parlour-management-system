@@ -359,7 +359,7 @@ if(isset($_GET["option"]))
 					<div class="card-body">
 						<div class="table-responsive">
 							<?php
-							if($system_usertype=="Clerk" || $system_usertype=="MakeupArtist" || $system_usertype=="SaloonService")
+							if($system_usertype=="Clerk" ||$system_usertype=="Admin"|| $system_usertype=="MakeupArtist" || $system_usertype=="SaloonService")
 							{
 							?>
 							<a href="index.php?page=staffleave.php&option=add"><button class="btn btn-primary">Add Staff Leave</button></a><br><br>

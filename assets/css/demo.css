@@ -153,15 +153,15 @@
     color: #333439; }
 
 body[data-background-color="dark"] .demo-icon .icon-preview {
-  color: #969696; }
+  color: #757171; }
 
 .demo-icon .icon-class {
   font-weight: 300;
   font-size: 13px;
-  color: #777; }
+  color: #6d6868; }
 
 body[data-background-color="dark"] .demo-icon .icon-class {
-  color: #a9a8a8; }
+  color: #887a7a; }
 
 .form-show-notify .form-control {
   margin-bottom: 15px; }

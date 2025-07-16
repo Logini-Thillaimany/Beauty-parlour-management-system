@@ -87,6 +87,10 @@ else
 	$readonlystatus="";
 }
 ?>
+<!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
 
 <body>
 
@@ -94,7 +98,7 @@ else
 	<div class="col-md-12">
 		<div class="card">
 			<div class="card-header">
-				<div class="card-title">Forget password</div>
+				<div class="card-title"><center>Forget password<center/></div>
 			</div>
 			<div class="card-body">
 				<div class="row">

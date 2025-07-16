@@ -267,7 +267,15 @@ if(isset($_GET["option"]))
 								<tr>			
 									<td colspan="2">
 										<center>
+										<?php
+										if(isset($_GET["page"]))
+										{
+										?>
 											<a href="index.php?page=supplytoservice.php&option=view"><button class="btn btn-primary">Go Back</button></a> 
+											<a href="print.php?print=supplytoservice.php&option=fullview&pk_supply_id=<?php echo $row_fullview["supply_id"]; ?>" target="_blank"><button class="btn btn-success">Print</button></a> 
+										<?php
+										}
+										?>
 										</center>
 									</td>
 								</tr>

@@ -32,13 +32,22 @@ if(isset($_POST["btnsave"]))
 									'".mysqli_real_escape_string($con,$_POST["txtexpiretype"])."')";
 	$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
 
-	//insert product price 
-	$sql_insert="INSERT INTO productprice(product_id,startdate,price,offer)
-							VALUES('".mysqli_real_escape_string($con,$_POST["txtproductid"])."',
-									'".mysqli_real_escape_string($con,date("Y-m-d"))."',
-									'".mysqli_real_escape_string($con,$_POST["txtprice"])."',
-									'".mysqli_real_escape_string($con,$_POST["txtoffer"])."')";
-	$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
+	// Insert into productprice table only if salestype is "Sale"
+    if ($_POST["txtsalestype"] === "Sale") 
+	{
+        // Validate price and offer
+        if (empty($_POST["txtprice"]) || empty($_POST["txtoffer"])) {
+            echo '<script>alert("Price and Offer are required for products on sale.");</script>';
+        } else {
+            $sql_insert = "INSERT INTO productprice(product_id, startdate, price, offer)
+                           VALUES ('" . mysqli_real_escape_string($con, $_POST["txtproductid"]) . "',
+                                   '" . mysqli_real_escape_string($con, date("Y-m-d")) . "',
+                                   '" . mysqli_real_escape_string($con, $_POST["txtprice"]) . "',
+                                   '" . mysqli_real_escape_string($con, $_POST["txtoffer"]) . "')";
+            $result_insert = mysqli_query($con, $sql_insert) or die("SQL error in productprice insert: " . mysqli_error($con));
+        }
+    }
+	
 	if($result_insert)
 	{
 		echo '<script>alert("Successfully Insert");
@@ -74,6 +83,36 @@ if(isset($_POST["btnsavechanges"]))
 	{
 		document.getElementById("popup_title").innerHTML='Product Image';
 		document.getElementById("popup_body").innerHTML='<img src="file/product/'+imageName+'" width="100%" height="100%">';
+	}
+</script>
+<script>
+	function active_product_price() {
+		var salestype = document.getElementById("txtsalestype").value;
+		
+		// Reset values only when switching to NotSale
+		if (salestype === "NotSale") {
+			document.getElementById("txtprice").value = "";
+			document.getElementById("txtoffer").value = "";
+		}
+
+		// Default: disable fields
+		document.getElementById("txtprice").readOnly = true;
+		//document.getElementById("txtprice").disabled = true;
+		//document.getElementById("txtprice").required = false;
+
+		document.getElementById("txtoffer").readOnly = true;
+		//document.getElementById("txtoffer").disabled = true;
+		//document.getElementById("txtoffer").required = false;
+
+		if (salestype === "Sale") {
+			document.getElementById("txtprice").readOnly = false;
+			//document.getElementById("txtprice").disabled = false;
+			//document.getElementById("txtprice").required = true;
+
+			document.getElementById("txtoffer").readOnly = false;
+			//document.getElementById("txtoffer").disabled = false;
+			//document.getElementById("txtoffer").required = true;
+		}
 	}
 </script>
 <?php
@@ -149,7 +188,7 @@ if(isset($_GET["option"]))
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtsalestype">Sales type</label>
-											<select class="form-control" name="txtsalestype" id="txtsalestype" required placeholder="sales/Not">
+											<select class="form-control" name="txtsalestype" id="txtsalestype" onChange="active_product_price()" required placeholder="sales/Not">
 												<option value="" disabled selected>Select Sales type </option>
 												<option value="Sale" >Sale</option>
 												<option value="NotSale" >Not for sale</option>
@@ -208,13 +247,13 @@ if(isset($_GET["option"]))
 										<!-- column one start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtprice">Price</label>
-											<input type="number" step="0.01" min="1" onkeypress="return isNumberKey(event)" class="form-control" name="txtprice" id="txtprice" required placeholder="Price .Rs"/>
+											<input type="number" step="0.01" min="1" onkeypress="return isNumberKey(event)" class="form-control" name="txtprice" id="txtprice"  placeholder="Price .Rs"/>
 										</div>
 										<!-- column one end -->
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">									
 											<label for="txtoffer">Offer</label>
-											<input type="number" step="0.01" min="0" max="50" class="form-control" onkeypress="return isNumberKey(event)" name="txtoffer" id="txtoffer" required placeholder="offer %"/>
+											<input type="number" step="0.01" min="0" max="50" class="form-control" onkeypress="return isNumberKey(event)" name="txtoffer" id="txtoffer"  placeholder="offer %"/>
 											<font color="#ED2939"> *Offer must be in percentage %</font>
 										</div>
 										<!-- column two end -->
