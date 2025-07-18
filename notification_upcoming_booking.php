@@ -39,15 +39,15 @@ include("connection.php");
                     // Fetch upcoming bookings based on user type
                     if($system_usertype=="Customer")
                     {
-                        $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept' AND servicedate >'$today' AND customer_id='$system_user_id' ORDER BY booking_id DESC";
+                        $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept' AND servicedate >='$today' AND customer_id='$system_user_id' ORDER BY booking_id DESC";
                     }
                     else if($system_usertype=="Admin" || $system_usertype=="Clerk")
                     {
-                        $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept'AND servicedate >'$today' ORDER BY booking_id DESC";
+                        $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept'AND servicedate >='$today' ORDER BY booking_id DESC";
                     }
                     else
                     {
-                        $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept' AND servicedate >'$today' AND  booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id') ORDER BY booking_id DESC";
+                        $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept' AND servicedate >='$today' AND  booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id') ORDER BY booking_id DESC";
                     }
 
                     $result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));

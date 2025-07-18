@@ -13,7 +13,7 @@ else
 {//guest or public
 	$system_usertype="Guest";
 }
-if($system_usertype=="Admin" || $system_usertype=="Clerk")//Notify New bookings to admin and clerk
+if($system_usertype=="Admin")//Notify New bookings to admin and clerk
 {
 include("connection.php");
 ?>

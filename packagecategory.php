@@ -129,15 +129,15 @@ if(isset($_POST["btnsavechanges"]))
 			document.getElementById("popup_title").innerHTML='Category Image';
 			document.getElementById("popup_body").innerHTML='<img src="file/category/'+imageName+'" width="100%" height="100%">';
 		}
-		</script>
+	</script>
 
-<script>
+	<script>
 		function popup_subcategory(imageName)
 		{
 			document.getElementById("popup_title").innerHTML='subcategory Image';
 			document.getElementById("popup_body").innerHTML='<img src="file/subcategory/'+imageName+'" width="100%" height="100%">';
 		}
-		</script>
+	</script>
 
 <body>
 <?php

@@ -37,14 +37,11 @@ include("connection.php");
                     $x=1;
                     $today = date("Y-m-d");
                     // Fetch upcoming bookings
-                    $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Finish' AND servicedate <='$today'  ORDER BY booking_id DESC";
+                    $sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept' AND servicedate <='$today'  ORDER BY booking_id DESC";
                     $result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
                     while($row_view=mysqli_fetch_assoc($result_view))
                     {	
-                        $sql_customer="SELECT name from customer WHERE customer_id='$row_view[customer_id]'";
-                        $result_customer=mysqli_query($con,$sql_customer) or die("sql error in sql_customer ".mysqli_error($con));
-                        $row_customer=mysqli_fetch_assoc($result_customer);
-                        
+                    
                         $sql_maxtime="SELECT MAX(endtime) AS maxtime FROM bookingpackage WHERE booking_id='$row_view[booking_id]' ";
                         $result_maxtime=mysqli_query($con,$sql_maxtime) or die("sql error in sql_maxtime ".mysqli_error($con));
                         $row_maxtime=mysqli_fetch_assoc($result_maxtime);
@@ -55,6 +52,10 @@ include("connection.php");
                         // Check if the service date is earlier or  if service date is today and the end time is before or equal to the current time
                         if($servicedate < $today || ($servicedate == $today && $endtime < $timenow))
                         {
+                            $sql_customer="SELECT name from customer WHERE customer_id='$row_view[customer_id]'";
+                            $result_customer=mysqli_query($con,$sql_customer) or die("sql error in sql_customer ".mysqli_error($con));
+                            $row_customer=mysqli_fetch_assoc($result_customer);
+                        
                             echo '<tr>';
                                 echo '<td>'.$x++.'</td>';
                                 echo '<td>'.$row_view["booking_id"].'</td>';

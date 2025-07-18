@@ -48,10 +48,6 @@ include("connection.php");
                     $result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
                     while($row_view=mysqli_fetch_assoc($result_view))
                     {	
-                        $sql_customer="SELECT name from customer WHERE customer_id='$row_view[customer_id]'";
-                        $result_customer=mysqli_query($con,$sql_customer) or die("sql error in sql_customer ".mysqli_error($con));
-                        $row_customer=mysqli_fetch_assoc($result_customer);
-
                         $sql_paied_amount= "SELECT SUM(payamount) AS total_pay FROM payment WHERE booking_id='$row_view[booking_id]' AND paystatus='Paid'";
                         $result_paied_amount=mysqli_query($con,$sql_paied_amount) or die("sql error in sql_paied_amount ".mysqli_error($con));	
                         $row_paied_amount=mysqli_fetch_assoc($result_paied_amount);
@@ -61,6 +57,9 @@ include("connection.php");
                         $balance=$Total_amount- $Paied_amount;
                         if($balance>0 )
                         {
+                            $sql_customer="SELECT name from customer WHERE customer_id='$row_view[customer_id]'";
+                            $result_customer=mysqli_query($con,$sql_customer) or die("sql error in sql_customer ".mysqli_error($con));
+                            $row_customer=mysqli_fetch_assoc($result_customer);
                             echo '<tr>';
                                 echo '<td>'.$x++.'</td>';
                                 echo '<td>'.$row_view["booking_id"].'</td>';

@@ -19,7 +19,7 @@ $total_notification=0;
 
 // Fetch upcoming bookings notifications
 $today = date("Y-m-d"); 
-$sql_upcoming_bookings="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept' AND servicedate >'$today' AND  booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id') ORDER BY booking_id DESC";
+$sql_upcoming_bookings="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept' AND servicedate >='$today' AND  booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id') ORDER BY booking_id DESC";
 $result_upcoming_bookings=mysqli_query($con,$sql_upcoming_bookings) or die("sql error in sql_upcoming_bookings ".mysqli_error($con));
 $upcoming_booking_notification=mysqli_num_rows($result_upcoming_bookings);                 
 
@@ -27,7 +27,7 @@ $total_notification+=$upcoming_booking_notification;
 
 // Fetch Upcomming leave notifications
 $today = date("Y-m-d");
-$sql_upcoming_leave="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE staff_id='$system_user_id' AND status='Approved' AND startdate>=$today ORDER BY startdate DESC";
+$sql_upcoming_leave="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE staff_id='$system_user_id' AND status='Approved' AND startdate>='$today' ORDER BY startdate DESC";
 $result_upcoming_leave=mysqli_query($con,$sql_upcoming_leave) or die("sql error in sql_upcoming_leave ".mysqli_error($con));
 $upcoming_leave_notification=mysqli_num_rows($result_upcoming_leave);
 
@@ -59,7 +59,7 @@ $total_notification+=$upcoming_leave_notification;
                         <span class="sub-item">Staff</span>
                       </a>
                     </li>
-					<li>
+					<!-- <li>
                       <a href="index.php?page=package.php&option=view">
                         <span class="sub-item">package</span>
                       </a>
@@ -68,7 +68,7 @@ $total_notification+=$upcoming_leave_notification;
                       <a href="index.php?page=product.php&option=view">
                         <span class="sub-item">Product</span>
                       </a>
-                    </li>
+                    </li> -->
 					<li>
                       <a href="index.php?page=staffleave.php&option=view">
                         <span class="sub-item">Staff leave</span>
@@ -86,11 +86,11 @@ $total_notification+=$upcoming_leave_notification;
                 </a>
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
-                    <li>
+                    <!--<li>
                       <a href="index.php?page=specialtime.php&option=view">
                         <span class="sub-item">Shop open at special days</span>
                       </a>
-                    </li>
+                    </li>-->
                     <li>
                       <a href="index.php?page=booking.php&option=view">
                         <span class="sub-item">Booking</span>
@@ -110,12 +110,12 @@ $total_notification+=$upcoming_leave_notification;
                   <ul class="nav nav-collapse">
                      <li>
                       <a href="index.php?page=notification_upcoming_booking.php">
-                        <span class="sub-item">Upcoming Bookings(<?php echo $upcoming_booking_notification; ?>)</span>
+                        <span class="sub-item">Upcoming Bookings (<?php echo $upcoming_booking_notification; ?>)</span>
                       </a>
                     </li>
                      <li>
                       <a href="index.php?page=notification_upcoming_leave.php">
-                        <span class="sub-item">Upcomming Leaves(<?php echo $upcoming_leave_notification; ?>)</span>
+                        <span class="sub-item">Upcomming Leaves (<?php echo $upcoming_leave_notification; ?>)</span>
                       </a>
                     </li> 
                   </ul>

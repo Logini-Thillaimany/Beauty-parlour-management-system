@@ -33,7 +33,7 @@ $total_notification+=$pending_payments_notification;
 
 // Fetch upcoming bookings notifications
 $today = date("Y-m-d"); 
-$sql_upcoming_bookings="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept'AND servicedate >'$today' ORDER BY booking_id DESC";
+$sql_upcoming_bookings="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE status='Accept'AND servicedate >='$today' ORDER BY booking_id DESC";
 $result_upcoming_bookings=mysqli_query($con,$sql_upcoming_bookings) or die("sql error in sql_upcoming_bookings ".mysqli_error($con));
 $upcoming_booking_notification=mysqli_num_rows($result_upcoming_bookings);                 
 
@@ -41,7 +41,7 @@ $total_notification+=$upcoming_booking_notification;
 
 // Fetch finished bookings notifications
 $finished_booking_notification=0;
-$sql_finished_bookings="SELECT booking_id,servicedate FROM booking WHERE status='Finish'AND servicedate <='$today'  ORDER BY booking_id DESC";
+$sql_finished_bookings="SELECT booking_id,servicedate FROM booking WHERE status='Accept' AND servicedate <='$today'  ORDER BY booking_id DESC";
 $result_finished_bookings=mysqli_query($con,$sql_finished_bookings) or die("sql error in sql_finished_bookings ".mysqli_error($con));
 while($row_view=mysqli_fetch_assoc($result_finished_bookings))
 {
@@ -58,15 +58,127 @@ while($row_view=mysqli_fetch_assoc($result_finished_bookings))
   }
 }
 
-$total_notification+=$finished_booking_notification;               
+$total_notification+=$finished_booking_notification;    
+
+// Fetch balance payment notifications
+$today = date("Y-m-d");
+$balance_payment_notification=0;
+
+// Fetch balance payments based on user type 
+$sql_balance_payment_booking="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE ( status='Accept' OR status='Finish' ) ORDER BY booking_id DESC";
+$result_balance_payment_booking=mysqli_query($con,$sql_balance_payment_booking) or die("sql error in sql_balance_payment_booking ".mysqli_error($con));
+while($row_balance_payment_booking=mysqli_fetch_assoc($result_balance_payment_booking))
+{	
+    $sql_paied_amount= "SELECT SUM(payamount) AS total_pay FROM payment WHERE booking_id='$row_balance_payment_booking[booking_id]' AND paystatus='Paid'";
+    $result_paied_amount=mysqli_query($con,$sql_paied_amount) or die("sql error in sql_paied_amount ".mysqli_error($con));	
+    $row_paied_amount=mysqli_fetch_assoc($result_paied_amount);
+
+    $Total_amount=$row_balance_payment_booking["totalamount"];
+    $Paied_amount=$row_paied_amount["total_pay"];
+    $balance=$Total_amount- $Paied_amount;
+    if($balance>0 )
+    {
+        $balance_payment_notification++;
+    }
+}
+$total_notification+=$balance_payment_notification;
 
 // Fetch upcoming leave notifications
 $today = date("Y-m-d");
-$sql_upcoming_leave="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE status='Approved' AND startdate>=$today ORDER BY startdate DESC";
+$sql_upcoming_leave="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE status='Approved' AND startdate>='$today' ORDER BY startdate DESC";
 $result_upcoming_leave=mysqli_query($con,$sql_upcoming_leave) or die("sql error in sql_upcoming_leave ".mysqli_error($con));
 $upcoming_leave_notification=mysqli_num_rows($result_upcoming_leave);
 
 $total_notification+=$upcoming_leave_notification;
+
+//low stock notification
+$low_stock_notification=0;
+$sql_view="SELECT product_id,name,minimumstock,expiretype FROM product WHERE expiretype='No'";
+$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
+while($row_view=mysqli_fetch_assoc($result_view))
+{
+  $purchasebutton=0;
+  
+  $sql_stock="SELECT quantity from stockne WHERE product_id='$row_view[product_id]'";
+  $result_stock=mysqli_query($con,$sql_stock) or die("sql error in sql_stock ".mysqli_error($con));
+  if(mysqli_num_rows($result_stock)>0)
+  {
+    $row_stock=mysqli_fetch_assoc($result_stock);
+    $sql_checkprice="SELECT startdate from productprice WHERE product_id='$row_view[product_id]' AND enddate IS NULL";
+    $result_checkprice=mysqli_query($con,$sql_checkprice) or die("sql error in sql_checkprice ".mysqli_error($con));
+    if(mysqli_num_rows($result_checkprice)>0)
+    {
+      if($row_view["minimumstock"]>=$row_stock["quantity"])
+      {
+        $purchasebutton=1;
+      }
+    }											
+  }
+  else
+  {
+    $sql_checkprice="SELECT startdate from productprice WHERE product_id='$row_view[product_id]' AND enddate IS NULL";
+    $result_checkprice=mysqli_query($con,$sql_checkprice) or die("sql error in sql_checkprice ".mysqli_error($con));
+    if(mysqli_num_rows($result_checkprice)>0)
+    {
+      
+      $purchasebutton=1;
+    }
+  }
+  if($purchasebutton==1)
+  {
+    $low_stock_notification++;
+  }
+}
+$sql_view="SELECT product_id,name,minimumstock,expiretype FROM product WHERE expiretype='Yes'";
+$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
+while($row_view=mysqli_fetch_assoc($result_view))
+{
+  $purchasebutton=0;
+  $priceAvailable=0;
+  $product_variable=' <font color="red">(Product not in use)</font>';
+
+  $sql_checkprice="SELECT startdate from productprice WHERE product_id='$row_view[product_id]' AND enddate IS NULL";
+  $result_checkprice=mysqli_query($con,$sql_checkprice) or die("sql error in sql_checkprice ".mysqli_error($con));
+  if(mysqli_num_rows($result_checkprice)>0)
+  {
+    $priceAvailable=1;
+    $product_variable="";
+  }
+
+  $sql_stock="SELECT * from stock WHERE product_id='$row_view[product_id]' AND quantity>0";
+  $result_stock=mysqli_query($con,$sql_stock) or die("sql error in sql_stock ".mysqli_error($con));
+  if(mysqli_num_rows($result_stock)>0)
+  {
+    $noTime=mysqli_num_rows($result_stock);
+    $y=1;
+    $total_quantity=0;
+    while($row_stock=mysqli_fetch_assoc($result_stock))
+    {
+      $today=date("Y-m-d");
+      $sql_expire="SELECT expiredate from purchaseproduct WHERE purchase_id='$row_stock[purchase_id]' AND product_id='$row_view[product_id]' AND expiredate>'$today'";
+      $result_expire=mysqli_query($con,$sql_expire) or die("sql error in sql_expire ".mysqli_error($con));
+      if(mysqli_num_rows($result_expire)>0)
+      {
+        $total_quantity=$total_quantity+$row_stock["quantity"];
+        $this_quantity=$row_stock["quantity"];
+      }
+      else
+      {
+        $this_quantity=$row_stock["quantity"].' <font color="red">Expired</font>';
+      }
+    }	
+    if($row_view["minimumstock"]>=$total_quantity)
+    {
+      $low_stock_notification++;
+    }
+    
+  }
+  else
+  {
+    $low_stock_notification++;
+  }
+  }
+$total_notification+=$low_stock_notification;
 
 ?>
 <ul class="nav nav-secondary">
@@ -147,6 +259,11 @@ $total_notification+=$upcoming_leave_notification;
                       </a>
                     </li>
                     <li>
+                      <a href="index.php?page=stockne.php&option=view">
+                        <span class="sub-item">Non Expired stock</span>
+                      </a>
+                    </li>
+                    <li>
                       <a href="index.php?page=supplytoservice.php&option=view">
                         <span class="sub-item">supply to service </span>
                       </a>
@@ -163,11 +280,11 @@ $total_notification+=$upcoming_leave_notification;
                 </a>
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
-                    <li>
+                    <!--<li>
                       <a href="index.php?page=specialtime.php&option=view">
                         <span class="sub-item">Shop open at special days</span>
                       </a>
-                    </li>
+                    </li>-->
                     <li>
                       <a href="index.php?page=customer.php&option=view">
                         <span class="sub-item">Customer</span>
@@ -207,17 +324,27 @@ $total_notification+=$upcoming_leave_notification;
                     </li> 
                     <li>
                       <a href="index.php?page=notification_upcoming_booking.php">
-                        <span class="sub-item">Upcoming Bookings(<?php echo $upcoming_booking_notification; ?>)</span>
+                        <span class="sub-item">Upcoming Bookings (<?php echo $upcoming_booking_notification; ?>)</span>
                       </a>
                     </li> 
                     <li>
                       <a href="index.php?page=notification_finished_booking.php">
-                        <span class="sub-item">Finished Bookings(<?php echo $finished_booking_notification; ?>)</span>
+                        <span class="sub-item">Finished Bookings (<?php echo $finished_booking_notification; ?>)</span>
+                      </a>
+                    </li> 
+                    <li>
+                      <a href="index.php?page=notification_balance_payment.php">
+                        <span class="sub-item">Incomplete Payment (<?php echo $balance_payment_notification; ?>)</span>
                       </a>
                     </li> 
                      <li>
                       <a href="index.php?page=notification_upcoming_leave.php">
-                        <span class="sub-item">Upcomming Leaves(<?php echo $upcoming_leave_notification; ?>)</span>
+                        <span class="sub-item">Upcomming Leaves (<?php echo $upcoming_leave_notification; ?>)</span>
+                      </a>
+                    </li> 
+                    <li>
+                      <a href="index.php?page=notification_low_stock.php">
+                        <span class="sub-item">Low Stock (<?php echo $low_stock_notification; ?>)</span>
                       </a>
                     </li> 
                   </ul>

@@ -144,11 +144,58 @@ if(isset($_POST["btnsavesale"]))
 									'".mysqli_real_escape_string($con,$status)."',
 									'".mysqli_real_escape_string($con,$filename)."')";
 		$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
+
+		$sql_bookingsale="SELECT * FROM bookingsales WHERE booking_id='".$_POST["txtbookingid"]."'";
+		$result_bookingsale=mysqli_query($con,$sql_bookingsale) or die("sql error in sql_bookingsale ".mysqli_error($con));
+		while($row_bookingsale=mysqli_fetch_assoc($result_bookingsale))
+		{ 	
+			$sql_product="SELECT expiretype from product WHERE product_id='$row_bookingsale[product_id]'";
+			$result_product=mysqli_query($con,$sql_product) or die("sql error in sql_product ".mysqli_error($con));
+			$row_product=mysqli_fetch_assoc($result_product);
+			if($row_product["expiretype"]=="Yes")
+			{
+				$today=date("Y-m-d");
+				$now_quantity=$row_bookingsale["quantity"];
+				$sql_stock="SELECT * from stock WHERE product_id='$row_bookingsale[product_id]' AND purchase_id IN (SELECT purchase_id FROM purchaseproduct WHERE expiredate>='$today' AND product_id='$row_bookingsale[product_id]')";
+				$result_stock=mysqli_query($con,$sql_stock) or die("sql error in sql_stock ".mysqli_error($con));
+				while($row_stock=mysqli_fetch_assoc($result_stock))
+				{
+					if($now_quantity<=$row_stock["quantity"])
+					{
+						$new_quantity=$row_stock["quantity"]-$now_quantity;
+
+						$sql_update="UPDATE stock SET quantity='$new_quantity' WHERE product_id='".mysqli_real_escape_string($con,$row_bookingsale["product_id"])."' AND purchase_id='".mysqli_real_escape_string($con,$row_stock["purchase_id"])."'";
+						$result_update=mysqli_query($con,$sql_update) or die("sql error in sql_update ".mysqli_error($con));
+						break;
+					}
+					else
+					{
+						$now_quantity=$now_quantity-$row_stock["quantity"];
+						$new_quantity=0;
+
+						$sql_update="UPDATE stock SET quantity='$new_quantity' WHERE product_id='".mysqli_real_escape_string($con,$row_bookingsale["product_id"])."' AND purchase_id='".mysqli_real_escape_string($con,$row_stock["purchase_id"])."'";
+						$result_update=mysqli_query($con,$sql_update) or die("sql error in sql_update ".mysqli_error($con));
+					}
+				}			
+			}
+			else
+			{
+				$sql_stock="SELECT quantity from stockne WHERE product_id='".mysqli_real_escape_string($con,$row_bookingsale["product_id"])."'";
+				$result_stock=mysqli_query($con,$sql_stock) or die("sql error in sql_stock ".mysqli_error($con));
+				$row_stock=mysqli_fetch_assoc($result_stock);
+				$new_quantity=$row_stock["quantity"]-$row_bookingsale["quantity"];
+
+				$sql_update="UPDATE stockne SET quantity='$new_quantity' WHERE product_id='".mysqli_real_escape_string($con,$row_bookingsale["product_id"])."'";
+				$result_update=mysqli_query($con,$sql_update) or die("sql error in sql_update ".mysqli_error($con));
+			}
+
+		}
 		if($result_insert)
 		{
 		echo '<script>alert("Successfully Insert");
 						window.location.href="index.php?page=bookingsales.php&option=fullview&pk_booking_id='.$_POST["txtbookingid"].'";</script>';
 		}
+		
 	}
 }
 //insert code end

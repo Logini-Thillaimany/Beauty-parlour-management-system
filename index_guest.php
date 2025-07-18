@@ -49,6 +49,9 @@ include("connection.php");
 	<!-- responsive -->
 	<link rel="stylesheet" href="guest/assets/css/responsive.css">
 
+	<link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+	<link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+
 </head>
 <script>
   //this is for Delete confirm
@@ -389,10 +392,16 @@ xmlhttp.send();
 						<div class="hero-text-tablecell">
 							<p class="subtitle">Elevate your style, embrace your beauty.</p>
 							<h1>Lathu Bridals</h1>
-							<div class="hero-btns">
-								<a href="shop.html" class="boxed-btn">Saloon Services</a>
-								<a href="shop.html" class="boxed-btn"> Makeup </a>
-							</div>
+							<?php
+							$sql_category="SELECT * FROM packagecategory WHERE status='Active'";
+							$result_category=mysqli_query($con,$sql_category) or die("sql error in sql_category ".mysqli_error($con));
+							while($row_category=mysqli_fetch_assoc($result_category))
+							{
+								echo '<div class="hero-btns">';
+								echo '<a href="index.php?page=body_subcategory.php&category_id='.$row_category["category_id"].'" class="boxed-btn">'.$row_category["name"].'</a>';
+								echo '</div>';
+							}
+							?>
 						</div>
 					</div>
 				</div>
@@ -444,22 +453,21 @@ xmlhttp.send();
 					<div class="footer-box pages">
 						<h2 class="widget-title">Pages</h2>
 						<ul>
-							<li><a href="index_guest.php">Home</a></li>
-							<li><a href="booking.php">Bookings</a></li>
-							<li><a href="about.php">About</a></li>
-							<li><a href="contact.html">Contact</a></li>
+							<li><a href="index.php">Home</a></li>
+							<li><a href="index.php?page=about.php">About</a></li>
+							<li><a href="index.php?page=contact.php">Contact</a></li>
 						</ul>
 					</div>
 				</div>
 				<div class="col-lg-3 col-md-6">
-					<div class="footer-box subscribe">
+					<!-- <div class="footer-box subscribe">
 						<h2 class="widget-title">Subscribe</h2>
 						<p>Subscribe to our mailing list to get the latest updates.</p>
 						<form action="index.html">
 							<input type="email" placeholder="Email">
 							<button type="submit"><i class="fas fa-paper-plane"></i></button>
 						</form>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</div>
@@ -512,3 +520,23 @@ xmlhttp.send();
 
 </body>
 </html>
+
+
+<!-- System Modal -->
+<div class="modal fade" id="system_popup" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"><div id="popup_title"></div></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      <div id="popup_body"></div>
+      </div>
+      <div class="modal-footer">
+      <div id="popup_footer"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- System Modal -->

@@ -406,7 +406,7 @@ if(isset($_GET["option"]))
 											echo '<td>';
 												echo '<a href="index.php?page=staffleave.php&option=fullview&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a> ';
 												if($row_view["status"]=="Pending" && $row_view["startdate"]>=date("Y-m-d"))
-												{
+												{ 
 													echo '<a onclick="return delete_confirm()" href="index.php?page=staffleave.php&option=delete&pk_leave_id='.$row_view["leave_id"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Cancel Apply</button></a> ';
 												}
 
@@ -473,6 +473,10 @@ if(isset($_GET["option"]))
 											if($row_fullview["status"]=="Pending" && $row_fullview["startdate"]>=date("Y-m-d") && $system_usertype=="Admin")
 											{
 												echo '<a onclick="return accept_confirm()" href="index.php?page=staffleave.php&option=status&pk_leave_id='.$row_fullview["leave_id"].'&status=Approved"><button class="btn btn-success">Approve Leave</button></a> ';
+												echo '<a onclick="return reject_confirm()" href="index.php?page=staffleave.php&option=status&pk_leave_id='.$row_fullview["leave_id"].'&status=Reject"><button class="btn btn-danger">Reject Leave</button></a> ';
+											}
+											if($row_fullview["status"]=="Pending" && $row_fullview["startdate"]<date("Y-m-d") && $system_usertype=="Admin")
+											{
 												echo '<a onclick="return reject_confirm()" href="index.php?page=staffleave.php&option=status&pk_leave_id='.$row_fullview["leave_id"].'&status=Reject"><button class="btn btn-danger">Reject Leave</button></a> ';
 											}
 											?>

@@ -79,8 +79,6 @@ if($system_usertype!="Guest")
 					<div class="row">
 						<!-- form start -->
 						<form method="POST" action="" onsubmit="return check_password()">
-							
-							
 							<div class="form-group">
 								<div class="row">
 									<!-- row one start -->

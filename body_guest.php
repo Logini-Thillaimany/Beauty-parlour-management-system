@@ -1,7 +1,21 @@
+<script>
+	function popup_category(imageName)
+	{
+		document.getElementById("popup_title").innerHTML='Category Image';
+		document.getElementById("popup_body").innerHTML='<img src="file/category/'+imageName+'" width="100%" height="100%">';
+	}
+</script>
+
+<script>
+	function popup_subcategory(imageName)
+	{
+		document.getElementById("popup_title").innerHTML='subcategory Image';
+		document.getElementById("popup_body").innerHTML='<img src="file/subcategory/'+imageName+'" width="100%" height="100%">';
+	}
+</script>
 <!-- features list section -->
 <div class="list-section pt-80 pb-80">
 	<div class="container">
-
 		<div class="row">
 			<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
 				<div class="list-box d-flex align-items-center">
@@ -43,84 +57,114 @@
 <!-- end features list section -->
 
 <!-- Category section (Slider style like Testimonials) -->
-<div class="category-section mt-80 mb-150">
+<div class="category-section mt-80 mb-100">
 	<div class="container">
 		<div class="row">
 			<div class="col-lg-8 offset-lg-2 text-center">
-				<div class="section-title mb-3">
+				<div class="section-title">
 					<h3><span class="orange-text">Our</span> Services</h3>
 					<p>Choose from our wide range of makeup and salon packages tailored to your beauty needs.</p>
 				</div>
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col-lg-10 offset-lg-1">
-				<div class="testimonial-sliders">
-					<?php 
-					$sql_Category="SELECT * FROM packagecategory";
-					$result_Category=mysqli_query($con,$sql_Category) or die("sql error in sql_Category ".mysqli_error($con));
-					while($row_Category=mysqli_fetch_assoc($result_Category)) {
-					?>
-					<div class="single-testimonial-slider text-center">
-						<div class="single-product-item p-3">
-							<div class="product-image mb-3 ">
-								<a href="single-product.html">
-									<img src="file/category/<?php echo $row_Category["image"].'?'.date("h:i:s"); ?>" 
-										onClick="popup_category('<?php echo $row_Category["image"].'?'.date("h:i:s"); ?>')" 
-										data-bs-toggle="modal" data-bs-target="#system_popup" 
-										style="width: 100%; height: 200px;  border-radius: 10px;">
-								</a>
-							</div>
-							<h3><?php echo $row_Category["name"]; ?></h3>
-							<a href="cart.html" class="cart-btn mt-2"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
-						</div>
-					</div>
-					<?php } ?>
+		<div class="d-flex justify-content-center flex-wrap gap-4">
+			<?php 
+			$sql_Category="SELECT * FROM packagecategory";
+			$result_Category=mysqli_query($con,$sql_Category) or die("sql error in sql_Category ".mysqli_error($con));
+			while($row_Category=mysqli_fetch_assoc($result_Category)) 
+			{
+			?>
+			<div class="single-product-item p-3 text-center" style="width: 350px;">
+				<div class="product-image mb-1 ">
+					<?php echo '<a href="index.php?page=body_subcategory.php&category_id='.$row_Category["category_id"].'">'; ?>
+						<img src="file/category/<?php echo $row_Category["image"].'?'.date("h:i:s"); ?>" 
+							onClick="popup_category('<?php echo $row_Category["image"].'?'.date("h:i:s"); ?>')" 
+							data-bs-toggle="modal" data-bs-target="#system_popup" 
+							style="width: 100%; height: 200px;  border-radius: 10px;">
+					</a>
 				</div>
+				<h3><?php echo $row_Category["name"]; ?></h3>
 			</div>
+			<?php 
+			}
+			?>
+			
 		</div>
 	</div>
 </div>
 <!-- end category-section -->
 
-	<!-- cart banner section -->
-	<section class="cart-banner pt-100 pb-100">
-    	<div class="container">
-        	<div class="row clearfix">
-            	<!--Image Column-->
-            	<div class="image-column col-lg-6">
-                	<div class="image">
-                    	<div class="price-box">
-                        	<div class="inner-price">
-                                <span class="price">
-                                    <strong>20%</strong> <br> off per Booking
-                                </span>
-                            </div>
-                        </div>
-                    	<img src="guest/assets/img/a.jpg" alt="">
-                    </div>
-                </div>
-                <!--Content Column-->
-                <div class="content-column col-lg-6">
-					<h3><span class="orange-text">Deal</span> of the month</h3>
-                    <h4>Hikan Strwaberry</h4>
-                    <div class="text">Quisquam minus maiores repudiandae nobis, minima saepe id, fugit ullam similique! Beatae, minima quisquam molestias facere ea. Perspiciatis unde omnis iste natus error sit voluptatem accusant</div>
-                    <!--Countdown Timer-->
-                    <div class="time-counter"><div class="time-countdown clearfix" data-countdown="2020/2/01"><div class="counter-column"><div class="inner"><span class="count">00</span>Days</div></div> <div class="counter-column"><div class="inner"><span class="count">00</span>Hours</div></div>  <div class="counter-column"><div class="inner"><span class="count">00</span>Mins</div></div>  <div class="counter-column"><div class="inner"><span class="count">00</span>Secs</div></div></div></div>
-                	<a href="cart.html" class="cart-btn mt-3"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- end cart banner section -->
+<!-- cart banner section -->
+<section class="cart-banner">
+	<div class="container">
+		<div class="row clearfix">
+			<!--Image Column-->
+			<div class="image-column col-lg-6">
+				<div class="image">
+					<?php
+					$sql_addvertisement="SELECT * FROM advertisement WHERE status='Publish' Limit 1 ";
+					$result_addvertisement=mysqli_query($con,$sql_addvertisement) or die("sql error in sql_view ".mysqli_error($con));
+					while($row_addvertisement=mysqli_fetch_assoc($result_addvertisement))
+					{
+						?>
+						<img src="file/advertisement/<?php echo $row_addvertisement["image"].'?'.date("h:i:s"); ?>" width="75%" hight="50px">
+						<?php
+					}	
+					?>
+				</div>
+				<div class="price-box">
+					<div class="inner-price">
+						<span class="price">
+							<strong>20%</strong> <br> off per Booking
+						</span>
+					</div>
+				</div>
+			</div>
+			<!--Content Column-->
+			<div class="content-column col-lg-6">
+				<h3><span class="orange-text">Deal</span> of the month</h3>
+				<h4>Signature Bridal Package</h4>
+				<div class="text">Experience the perfect blend of elegance and tradition. This premium bridal package includes HD makeup, herbal facial, hair styling, saree draping & accessories – all tailored to make you shine on your special day.
+									Book now and enjoy exclusive discounts for this month only!</div>
+				<!--Countdown Timer-->
+				<div class="time-counter">
+					<div class="time-countdown clearfix" data-countdown="2025/7/31">
+						<div class="counter-column">
+							<div class="inner">
+								<span class="count">00</span>Days
+							</div>
+						</div> 
+						<div class="counter-column">
+							<div class="inner">
+								<span class="count">00</span>Hours
+							</div>
+						</div>  
+						<div class="counter-column">
+							<div class="inner">
+								<span class="count">00</span>Mins
+							</div>
+						</div>  
+						<div class="counter-column">
+							<div class="inner">
+								<span class="count">00</span>Secs
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- <a href="index.php?page=body_book_check.php&package_id=<?php echo $row_package["package_id"]; ?>" class="cart-btn mt-3"><i class="fas fa-calendar-alt"></i> Book Now</a> -->
+			</div>
+		</div>
+	</div>
+</section>
+<!-- end cart banner section -->
 
-	<!-- Sub Category section -->
-<div class="product-section mt-80 mb-150">
+<!-- Sub Category section -->
+<div class="product-section  mt-80 ">
 	<div class="container">
 		<div class="row">
 			<div class="col-lg-8 offset-lg-2 text-center">
-				<div class="section-title mb-3">	
+				<div class="section-title mb-1">	
 					<h3><span class="orange-text">Sub</span> Categories</h3>
 					<p>Explore our service subcategories like facials, haircuts, bridal makeup, and more.</p>
 				</div>
@@ -128,26 +172,25 @@
 		</div>
 
 		<!-- Scrollable row -->
-		<div class="scrolling-wrapper d-flex flex-nowrap overflow-auto justify-content-center px-2" style="gap: 25px;">
+		<div class="scrolling-wrapper d-flex flex-nowrap overflow-auto justify-content-start px-4 gap-3" style="scrollbar-width: none; -ms-overflow-style: none;">
 			<?php 
 			$sql_SubCategory = "SELECT * FROM packagesubcategory";
 			$result_SubCategory = mysqli_query($con, $sql_SubCategory) or die("SQL error in sql_SubCategory: ".mysqli_error($con));
 			while($row_SubCategory = mysqli_fetch_assoc($result_SubCategory)) {
 			?>
-			<div class="col-lg-4 col-md-6 text-center flex-shrink-0" style="width: 260px;">
-				<div class="single-product-item p-3">
-					<div class="product-image mb-3">
-						<a href="#">
-							<img src="file/subcategory/<?php echo $row_SubCategory['image'].'?'.date('h:i:s'); ?>" 
-								onClick="popup_subcategory('<?php echo $row_SubCategory['image'].'?'.date('h:i:s'); ?>')" 
-								data-bs-toggle="modal" data-bs-target="#system_popup" 
-								style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
-						</a>
+			<a href="index.php?page=body_package.php&subcategory_id=<?php echo $row_SubCategory["subcategory_id"]; ?>">
+				<div class="card flex-shrink-0  style="width: 300px; margin-right: 16px;">
+					<div class="single-product-item p-3 shadow-sm">
+						<div class="product-image mb-2">
+								<img src="file/subcategory/<?php echo $row_SubCategory['image'].'?'.date('h:i:s'); ?>" 
+									onClick="popup_subcategory('<?php echo $row_SubCategory['image'].'?'.date('h:i:s'); ?>')" 
+									data-bs-toggle="modal" data-bs-target="#system_popup" 
+									style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px;">
+						</div class="p-3">
+						<h3><?php echo $row_SubCategory["name"]; ?></h3>
 					</div>
-					<h3><?php echo $row_SubCategory["name"]; ?></h3>
-					<a href="cart.html" class="cart-btn mt-2"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
 				</div>
-			</div>
+			</a>
 			<?php } ?>
 		</div>
 	</div>
@@ -155,154 +198,130 @@
 <!-- end sub category section -->
 
 
-	<!-- Review section -->
-	<div class="testimonail-section mt-150 mb-150">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-10 offset-lg-1 text-center">
-					<div class="testimonial-sliders">
+<!-- Review section -->
+<div class="testimonail-section mt-80">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-10 offset-lg-1 text-center">
+				<div class="testimonial-sliders">
+					<?php
+					$sql_view_review="SELECT * FROM review";
+					$result_view_review=mysqli_query($con,$sql_view_review) or die("sql error in sql_view_review ".mysqli_error($con));
+					while($row_view_review=mysqli_fetch_assoc($result_view_review))
+					{	
+						$sql_package="SELECT * from package WHERE package_id='$row_view_review[package_id]'";
+						$result_package=mysqli_query($con,$sql_package) or die("sql error in sql_package ".mysqli_error($con));
+						$row_package=mysqli_fetch_assoc($result_package);
+						
+						$sql_SubCategory="SELECT * from packagesubcategory WHERE subcategory_id='$row_package[subcategory_id]'";
+						$result_SubCategory=mysqli_query($con,$sql_SubCategory) or die("sql error in sql_SubCategory ".mysqli_error($con));
+						$row_SubCategory=mysqli_fetch_assoc($result_SubCategory);
+
+						$sql_package_photo="SELECT photo_id,photo,package_id FROM packagephoto  WHERE package_id='$row_package[package_id]'";
+						$result_package_photo=mysqli_query($con,$sql_package_photo) or die("sql error in sql_package_photo ".mysqli_error($con));
+						$row_package_photo=mysqli_fetch_assoc($result_package_photo);
+
+						{
+						?>
 						<div class="single-testimonial-slider">
-							<div class="client-avater">
-								<img src="guest/assets/img/avaters/avatar1.png" alt="">
-							</div>
-							<div class="client-meta">
-								<h3>Saira Hakim <span>Local shop owner</span></h3>
-								<p class="testimonial-body">
-									" Sed ut perspiciatis unde omnis iste natus error veritatis et  quasi architecto beatae vitae dict eaque ipsa quae ab illo inventore Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium "
-								</p>
-								<div class="last-icon">
-									<i class="fas fa-quote-right"></i>
+							<div class="single-product-item p-3">
+								<div class="client-avater">
+									<img src="file/package/<?php echo $row_package_photo["photo"].'?'.date("h:i:s"); ?>"  style="border-radius: 10px;">
+								</div>
+								<div class="client-meta">
+									<h3><?php echo $row_SubCategory["name"]; ?><span><?php echo $row_package["name"]; ?></span></h3>
+									<p class="testimonial-body">
+										"<?php echo $row_view_review["comments"]; ?>"
+										<br>
+										<span>
+											<?php 
+												for($i=1;$i<=5;$i++)
+												{
+													if($i<=$row_view_review["rate"])
+													{
+														echo '<i class="fa fa-star" style="color:orange;"></i>';
+													}
+													else
+													{
+														echo '<i class="fa fa-star"></i>';
+													}
+												}
+											?>
+										</span>
+									</p>
+									<div class="last-icon">
+										<i class="fas fa-quote-right"></i>
+									</div>
 								</div>
 							</div>
 						</div>
-						<div class="single-testimonial-slider">
-							<div class="client-avater">
-								<img src="guest/assets/img/avaters/avatar2.png" alt="">
-							</div>
-							<div class="client-meta">
-								<h3>David Niph <span>Local shop owner</span></h3>
-								<p class="testimonial-body">
-									" Sed ut perspiciatis unde omnis iste natus error veritatis et  quasi architecto beatae vitae dict eaque ipsa quae ab illo inventore Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium "
-								</p>
-								<div class="last-icon">
-									<i class="fas fa-quote-right"></i>
-								</div>
-							</div>
-						</div>
-						<div class="single-testimonial-slider">
-							<div class="client-avater">
-								<img src="guest/assets/img/avaters/avatar3.png" alt="">
-							</div>
-							<div class="client-meta">
-								<h3>Jacob Sikim <span>Local shop owner</span></h3>
-								<p class="testimonial-body">
-									" Sed ut perspiciatis unde omnis iste natus error veritatis et  quasi architecto beatae vitae dict eaque ipsa quae ab illo inventore Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium "
-								</p>
-								<div class="last-icon">
-									<i class="fas fa-quote-right"></i>
-								</div>
-							</div>
-						</div>
-					</div>
+						<?php
+						}
+					} // end while loop for reviews
+					?>
 				</div>
 			</div>
 		</div>
 	</div>
-	<!-- end testimonail-section -->
+</div>
+<!-- end testimonail-section -->
 	
-	<!-- advertisement section -->
-	<div class="abt-section mb-150">
+<!-- parlour products section -->
+	<div class="latest-news ">
 		<div class="container">
-			<div class="row">
-				<div class="col-lg-6 col-md-12">
-					<div class="abt-bg">
-						<a href="https://www.youtube.com/watch?v=DBLlFWYcIGQ" class="video-play-btn popup-youtube"><i class="fas fa-play"></i></a>
-					</div>
-				</div>
-				<div class="col-lg-6 col-md-12">
-					<div class="abt-text">
-						<p class="top-sub">Since Year 1999</p>
-						<h2>We are <span class="orange-text">Fruitkha</span></h2>
-						<p>Etiam vulputate ut augue vel sodales. In sollicitudin neque et massa porttitor vestibulum ac vel nisi. Vestibulum placerat eget dolor sit amet posuere. In ut dolor aliquet, aliquet sapien sed, interdum velit. Nam eu molestie lorem.</p>
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente facilis illo repellat veritatis minus, et labore minima mollitia qui ducimus.</p>
-						<a href="about.html" class="boxed-btn mt-4">know more</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end advertisement section -->
-	
-	<!-- shop banner -->
-	<section class="shop-banner">
-    	<div class="container">
-        	<h3>December sale is on! <br> with big <span class="orange-text">Discount...</span></h3>
-            <div class="sale-percent"><span>Sale! <br> Upto</span>50% <span>off</span></div>
-            <a href="shop.html" class="cart-btn btn-lg">Shop Now</a>
-        </div>
-    </section>
-	<!-- end shop banner -->
-
-	<!-- latest news -->
-	<div class="latest-news pt-150 pb-150">
-		<div class="container">
-
 			<div class="row">
 				<div class="col-lg-8 offset-lg-2 text-center">
 					<div class="section-title">	
-						<h3><span class="orange-text">Our</span> News</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, fuga quas itaque eveniet beatae optio.</p>
+						<h3><span class="orange-text">Selling</span> Products</h3>
+						<p>Explore our exclusive in-store beauty products available only at our parlour.<br> Visit us to purchase directly.</p>
 					</div>
 				</div>
 			</div>
-
-			<div class="row">
+		<div class="row">
 				<div class="col-lg-4 col-md-6">
 					<div class="single-latest-news">
-						<a href="single-news.html"><div class="latest-news-bg news-bg-1"></div></a>
+						<div class="product-image mb-1">
+							<img src="file/product/PPR00009.jpg" onClick="popup_product('PPR00009.jpg')" data-bs-toggle="modal" data-bs-target="#system_popup" width="100%" hight="90%">
+						</div>
 						<div class="news-text-box">
-							<h3><a href="single-news.html">You will vainly look for fruit on it in autumn.</a></h3>
+							<h3>Vitamin-C Serum</h3>
 							<p class="blog-meta">
-								<span class="author"><i class="fas fa-user"></i> Admin</span>
-								<span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
+								<span class="author"><i class="fas fa-store"></i> Available in Store</span>
+								<span class="date"><i class="fas fa-calendar-check"></i> Updated July 2025</span>
 							</p>
-							<p class="excerpt">Vivamus lacus enim, pulvinar vel nulla sed, scelerisque rhoncus nisi. Praesent vitae mattis nunc, egestas viverra eros.</p>
-							<a href="single-news.html" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
+							<p class="excerpt">Typically in a liquid or gel form, designed for topical application to the skin. It acts as a potent antioxidant, protecting the skin from environmental damage, brightening the complexion, and reducing the appearance of fine lines and wrinkles.</p>
 						</div>
 					</div>
 				</div>
 				<div class="col-lg-4 col-md-6">
 					<div class="single-latest-news">
-						<a href="single-news.html"><div class="latest-news-bg news-bg-2"></div></a>
+						<div class="product-image mb-1">
+							<img src="file/product/PPR00003.jpg" onClick="popup_product('PPR00003.jpg')" data-bs-toggle="modal" data-bs-target="#system_popup" width="100%" hight="90%">
+						</div>
 						<div class="news-text-box">
-							<h3><a href="single-news.html">A man's worth has its season, like tomato.</a></h3>
+							<h3><a href="#">Facial Kit</a></h3>
 							<p class="blog-meta">
-								<span class="author"><i class="fas fa-user"></i> Admin</span>
-								<span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
+								<span class="author"><i class="fas fa-store"></i>  Available in Store</span>
+								<span class="date"><i class="fas fa-calendar-check"></i> Updated July 2025</span>
 							</p>
-							<p class="excerpt">Vivamus lacus enim, pulvinar vel nulla sed, scelerisque rhoncus nisi. Praesent vitae mattis nunc, egestas viverra eros.</p>
-							<a href="single-news.html" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
+							<p class="excerpt">A facial kit is a collection of skincare products, often including cleanser, toner, exfoliator, mask, serum, and moisturizer, designed to provide a complete skincare routine in a convenient package.</p>
 						</div>
 					</div>
 				</div>
 				<div class="col-lg-4 col-md-6 offset-md-3 offset-lg-0">
 					<div class="single-latest-news">
-						<a href="single-news.html"><div class="latest-news-bg news-bg-3"></div></a>
+						<div class="product-image mb-1">
+							<img src="file/product/Hairmask.jpg" onClick="popup_product('Hairmask.jpg')" data-bs-toggle="modal" data-bs-target="#system_popup" width="100%" hight="90%">
+						</div>
 						<div class="news-text-box">
-							<h3><a href="single-news.html">Good thoughts bear good fresh juicy fruit.</a></h3>
+							<h3><a href="#">Hair Spa Pack</a></h3>
 							<p class="blog-meta">
-								<span class="author"><i class="fas fa-user"></i> Admin</span>
-								<span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
+								<span class="author"><i class="fas fa-store"></i> Available in Store</span>
+								<span class="date"><i class="fas fa-calendar-check"></i> Updated July 2025</span>
 							</p>
-							<p class="excerpt">Vivamus lacus enim, pulvinar vel nulla sed, scelerisque rhoncus nisi. Praesent vitae mattis nunc, egestas viverra eros.</p>
-							<a href="single-news.html" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
+							<p class="excerpt">Boost your hair health with our in-house organic spa product. Only available in parlour outlet</p>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12 text-center">
-					<a href="news.html" class="boxed-btn">More News</a>
 				</div>
 			</div>
 		</div>

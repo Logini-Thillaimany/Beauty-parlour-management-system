@@ -38,11 +38,11 @@ include("connection.php");
                     $today = date("Y-m-d");
                     if( $system_usertype=="MakeupArtist" || $system_usertype=="SaloonService")
                     {
-                        $sql_view="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE staff_id='$system_user_id' AND status='Approved' AND startdate>=$today ORDER BY startdate DESC";
+                        $sql_view="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE staff_id='$system_user_id' AND status='Approved' AND startdate>='$today' ORDER BY startdate DESC";
                     }
                     else 
                     {
-                        $sql_view="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE status='Approved' AND startdate>=$today ORDER BY startdate DESC";
+                        $sql_view="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE status='Approved' AND startdate>='$today' ORDER BY startdate DESC";
                     }
                     $result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
                     while($row_view=mysqli_fetch_assoc($result_view))

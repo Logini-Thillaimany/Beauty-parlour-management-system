@@ -74,7 +74,17 @@
 	<!-- end featured section -->
 
 	<!-- shop banner -->
-	<section class="shop-banner"  style="background-image: url(assets/img/1.jpg);">
+	<?php
+	$sql_addvertisement="SELECT * FROM advertisement WHERE status='Publish'  Limit 1";
+	$result_addvertisement=mysqli_query($con,$sql_addvertisement) or die("sql error in sql_view ".mysqli_error($con));
+	while($row_addvertisement=mysqli_fetch_assoc($result_addvertisement))
+	{
+	?>
+	<section class="shop-banner custom-banner">
+    	<img src="file/advertisement/<?php echo $row_addvertisement['image'] . '?' . date('h:i:s'); ?>" class="banner-image" alt="Advertisement Banner">
+    <?php
+	}	
+	?>
     	<div class="container">
         	<h3>July-August Bookings are on! <br> with big <span class="orange-text">Discount...</span></h3>
             <div class="sale-percent"><span>Special Alert! <br> Upto</span>30% <span>off</span></div>
@@ -82,6 +92,7 @@
         </div>
     </section>
 	<!-- end shop banner -->
+	
 
 	<!-- team section -->
 	<div class="mt-150">
@@ -89,8 +100,8 @@
 			<div class="row">
 				<div class="col-lg-8 offset-lg-2 text-center">
 					<div class="section-title">
-						<h3>Our <span class="orange-text">Team</span></h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid, fuga quas itaque eveniet beatae optio.</p>
+						<h3>Our <span class="orange-text">Beauty Experts Team</span></h3>
+						<p>Meet the talented professionals at Lathu Bridal Beauty Parlour, dedicated to making every bride glow with elegance and confidence.</p>
 					</div>
 				</div>
 			</div>
@@ -98,7 +109,7 @@
 				<div class="col-lg-4 col-md-6">
 					<div class="single-team-item">
 						<div class="team-bg team-bg-1"></div>
-						<h4>Jimmy Doe <span>Farmer</span></h4>
+						<h4> Nirugika <span>Bridal Makeup Artist</span></h4>
 						<ul class="social-link-team">
 							<li><a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
 							<li><a href="#" target="_blank"><i class="fab fa-twitter"></i></a></li>
@@ -109,7 +120,7 @@
 				<div class="col-lg-4 col-md-6">
 					<div class="single-team-item">
 						<div class="team-bg team-bg-2"></div>
-						<h4>Marry Doe <span>Farmer</span></h4>
+						<h4>Karthika<span>Hair Stylist</span></h4>
 						<ul class="social-link-team">
 							<li><a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
 							<li><a href="#" target="_blank"><i class="fab fa-twitter"></i></a></li>
@@ -120,7 +131,7 @@
 				<div class="col-lg-4 col-md-6 offset-md-3 offset-lg-0">
 					<div class="single-team-item">
 						<div class="team-bg team-bg-3"></div>
-						<h4>Simon Joe <span>Farmer</span></h4>
+						<h4>Sarmila<span>Skincare Specialist</span></h4>
 						<ul class="social-link-team">
 							<li><a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
 							<li><a href="#" target="_blank"><i class="fab fa-twitter"></i></a></li>
@@ -144,9 +155,9 @@
 								<img src="assets/img/avaters/avatar1.png" alt="">
 							</div>
 							<div class="client-meta">
-								<h3>Saira Hakim <span>Local shop owner</span></h3>
+								<h3>Nirugika <span>Senior Beautician</span></h3>
 								<p class="testimonial-body">
-									" Sed ut perspiciatis unde omnis iste natus error veritatis et  quasi architecto beatae vitae dict eaque ipsa quae ab illo inventore Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium "
+									" I always recommend the Gold Facial to clients before weddings or special events. It deeply nourishes and gives their skin a beautiful, glowing finish that boosts their confidence instantly."
 								</p>
 								<div class="last-icon">
 									<i class="fas fa-quote-right"></i>
@@ -158,9 +169,9 @@
 								<img src="assets/img/avaters/avatar2.png" alt="">
 							</div>
 							<div class="client-meta">
-								<h3>David Niph <span>Local shop owner</span></h3>
+								<h3>Karthika <span>Hair Stylist</span></h3>
 								<p class="testimonial-body">
-									" Sed ut perspiciatis unde omnis iste natus error veritatis et  quasi architecto beatae vitae dict eaque ipsa quae ab illo inventore Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium "
+									"Long Layers is one of our most requested haircuts. It gives volume, flow, and style without much daily maintenance. Clients love the bounce and elegance it adds to their look."
 								</p>
 								<div class="last-icon">
 									<i class="fas fa-quote-right"></i>
@@ -172,9 +183,9 @@
 								<img src="assets/img/avaters/avatar3.png" alt="">
 							</div>
 							<div class="client-meta">
-								<h3>Jacob Sikim <span>Local shop owner</span></h3>
+								<h3>Sarmila <span>Makeup Artist</span></h3>
 								<p class="testimonial-body">
-									" Sed ut perspiciatis unde omnis iste natus error veritatis et  quasi architecto beatae vitae dict eaque ipsa quae ab illo inventore Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium "
+									"Our Premium Bridal Package is crafted with love. Seeing the bride's smile after her transformation is priceless. Every product and technique we use is handpicked for lasting elegance and comfort."
 								</p>
 								<div class="last-icon">
 									<i class="fas fa-quote-right"></i>

@@ -24,6 +24,10 @@ if(isset($_POST["btnsave"]))
 	$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
 	if($result_insert)
 	{
+		if(isset($_SESSION["online_guest_book"]))
+		{
+			unset($_SESSION["online_guest_book"]);
+		}
 		if(!isset($_SESSION["session_booking_id"]))
 		{
 			$_SESSION["session_booking_id"]=$_POST["txtbookingid"];

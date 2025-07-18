@@ -33,20 +33,20 @@ if(isset($_POST["btnsave"]))
 	$result_insert=mysqli_query($con,$sql_insert) or die("sql error in sql_insert ".mysqli_error($con));
 
 	// Insert into productprice table only if salestype is "Sale"
-    if ($_POST["txtsalestype"] === "Sale") 
-	{
+    //if ($_POST["txtsalestype"] === "Sale") 
+	//{
         // Validate price and offer
-        if (empty($_POST["txtprice"]) || empty($_POST["txtoffer"])) {
-            echo '<script>alert("Price and Offer are required for products on sale.");</script>';
-        } else {
+        //if (empty($_POST["txtprice"]) || empty($_POST["txtoffer"])) {
+           // echo '<script>alert("Price and Offer are required for products on sale.");</script>';
+       // } else {
             $sql_insert = "INSERT INTO productprice(product_id, startdate, price, offer)
                            VALUES ('" . mysqli_real_escape_string($con, $_POST["txtproductid"]) . "',
                                    '" . mysqli_real_escape_string($con, date("Y-m-d")) . "',
                                    '" . mysqli_real_escape_string($con, $_POST["txtprice"]) . "',
                                    '" . mysqli_real_escape_string($con, $_POST["txtoffer"]) . "')";
             $result_insert = mysqli_query($con, $sql_insert) or die("SQL error in productprice insert: " . mysqli_error($con));
-        }
-    }
+       // }
+   // }
 	
 	if($result_insert)
 	{
@@ -188,7 +188,7 @@ if(isset($_GET["option"]))
 										<!-- column two start -->
 										<div class="col-md-6 col-lg-6">
 											<label for="txtsalestype">Sales type</label>
-											<select class="form-control" name="txtsalestype" id="txtsalestype" onChange="active_product_price()" required placeholder="sales/Not">
+											<select class="form-control" name="txtsalestype" id="txtsalestype"  required placeholder="sales/Not">
 												<option value="" disabled selected>Select Sales type </option>
 												<option value="Sale" >Sale</option>
 												<option value="NotSale" >Not for sale</option>

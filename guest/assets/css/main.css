@@ -41,7 +41,7 @@ a {
 }
 
 a:hover {
-  color: #f02e78;
+  color: #f02ec6;
   text-decoration: none;
 }
 
@@ -288,12 +288,12 @@ p:last-child {
 }
 
 .mb-80 {
-  margin-bottom: 80px;
+  margin-bottom: 50px;
 }
 
 @media only screen and (max-width: 767.96px) {
   .mb-80 {
-    margin-bottom: 50px;
+    margin-bottom: 40px;
   }
 }
 
@@ -303,7 +303,7 @@ p:last-child {
 
 @media only screen and (max-width: 767.96px) {
   .mt-100 {
-    margin-top: 80px;
+    margin-top: 50px;
   }
 }
 
@@ -318,7 +318,7 @@ p:last-child {
 }
 
 .mt-150 {
-  margin-top: 150px;
+  margin-top: 100px;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -328,17 +328,17 @@ p:last-child {
 }
 
 .mb-150 {
-  margin-bottom: 150px;
+  margin-bottom: 80px;
 }
 
 @media only screen and (max-width: 767.96px) {
   .mb-150 {
-    margin-bottom: 100px;
+    margin-bottom: 80px;
   }
 }
 
 .pt-80 {
-  padding-top: 80px;
+  padding-top: 50px;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -348,7 +348,7 @@ p:last-child {
 }
 
 .pb-80 {
-  padding-bottom: 80px;
+  padding-bottom: 50px;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -358,7 +358,7 @@ p:last-child {
 }
 
 .pt-100 {
-  padding-top: 100px;
+  padding-top: 80px;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -368,17 +368,17 @@ p:last-child {
 }
 
 .pb-100 {
-  padding-bottom: 100px;
+  padding-bottom: 80px;
 }
 
 @media only screen and (max-width: 767.96px) {
   .pb-100 {
-    padding-bottom: 80px;
+    padding-bottom:50px;
   }
 }
 
 .pt-150 {
-  padding-top: 150px;
+  padding-top: 100px;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -406,7 +406,7 @@ p:last-child {
 }
 
 .blue-bg {
-  background-color: #162133;
+  background-color: #245097;
 }
 
 a.boxed-btn {
@@ -795,7 +795,7 @@ a.mobile-show {
 
 .search-bar-tablecell button[type=submit] {
   border: none;
-  background-color: #dd3675;
+  background-color: #3655dd;
   padding: 10px 20px;
   cursor: pointer;
   display: inline-block;
@@ -876,8 +876,8 @@ a.mobile-show {
   margin-bottom: 10px;
 }
 
-.btn.btn-primary {
-  background: #e91e63;
+.btn-primary {
+  background: #054dd3;
   border: none;
   border-radius: 30px;
   padding: 6px 18px;
@@ -961,7 +961,7 @@ h2.widget-title:after {
   width: 20%;
   border: none;
   background-color: #022a3d;
-  color: #c40765ea;
+  color: #224bd1ea;
   padding: 14px 0;
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
@@ -1123,7 +1123,7 @@ a.tof-btn i {
 }
 
 a.tof-btn:hover {
-  color: #dd3675;
+  color: #224bd1ea;
 }
 
 a.tof-btn:hover i {
@@ -1162,7 +1162,7 @@ a.tof-btn:hover i {
 }
 
 .footer-box.pages ul li:hover a {
-  color: #dd3675;
+  color: #224bd1ea;
 }
 
 .footer-box.subscribe form button {
@@ -1172,12 +1172,12 @@ a.tof-btn:hover i {
 }
 
 .footer-box.subscribe form button:hover {
-  background-color: #dd3675;
+  background-color: #224bd1ea;
   color: #051922;
 }
 
 .social-icons ul li:hover a {
-  color: #dd3675;
+  color: #224bd1ea;
 }
 
 .social-icons ul li a {
@@ -1944,7 +1944,7 @@ span.comment-date {
 
 .cart-banner .image-column .price-box {
   position: absolute;
-  left: 15%;
+  left: 50%;
   top: -30px;
   width: 110px;
   height: 110px;
@@ -1966,7 +1966,7 @@ span.comment-date {
 
 .cart-banner .image-column .price-box .inner-price .price {
   color: #051922;
-  padding-top: 27px;
+  padding-top: 30px;
   position: relative;
   display: inline-block;
   line-height: 18px;
@@ -2186,6 +2186,35 @@ a.video-play-btn {
   display: inline-block;
 }
 
+.shop-banner.custom-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f9f3f7;
+  padding: 20px;
+  height: 900px;
+  gap: 30px;
+}
+
+.shop-banner .banner-image {
+  max-width: 40%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.shop-banner .container {
+  max-width: 50%;
+  color: #222;
+}
+
+.shop-banner .text-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 15px;
+}
 /* -----------------------------------------------------------------------------
 
 # About Page Styles
@@ -2197,12 +2226,12 @@ a.video-play-btn {
 }
 
 .feature-bg:after {
-  background-image: url(../img/feature-bg.jpg);
+  background-image: url(../img/AD00001.jpg);
   position: absolute;
   right: 0;
   top: 0;
   width: 40%;
-  height: 100%;
+  height: 130%;
   content: "";
   background-size: cover;
   background-position: center;
@@ -2213,19 +2242,19 @@ a.video-play-btn {
 }
 
 .team-bg-1 {
-  background-image: url(../img/team/team-1.jpg);
+  background-image: url(../img/Clerk.jpg);
 }
 
 .team-bg-2 {
-  background-image: url(../img/team/team-2.jpg);
+  background-image: url(../img/staff1.jpeg);
 }
 
 .team-bg-3 {
-  background-image: url(../img/team/team-3.jpg);
+  background-image: url(../img/staff2.jpeg);
 }
 
 .team-bg-4 {
-  background-image: url(../img/team/team-4.jpg);
+  background-image: url(../img/Clerk.jpg);
 }
 
 .team-bg {
@@ -2429,7 +2458,7 @@ ul.social-link-team li a {
   margin: 15px;
   border: 2px solid #051922;
   color: #323232;
-  cursor: pointer;
+  cursor: pointer; 
   padding: 8px 20px;
   border-radius: 25px;
 }

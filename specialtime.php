@@ -335,7 +335,7 @@ if(isset($_GET["option"]))
 											if($system_usertype=="Admin" || $system_usertype=="Clerk")
 											{
 												echo '<td>';
-												if($row_view["date"]>=date("Y-m-d"))
+												if($row_view["date"]>date("Y-m-d"))
 												{
 													echo '<a onclick="return delete_confirm()" href="index.php?page=specialtime.php&option=delete&pk_date='.$row_view["date"].'&pk_starttime='.$row_view["starttime"].'"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Delete</button></a> ';
 												}

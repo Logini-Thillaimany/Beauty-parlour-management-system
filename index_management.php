@@ -433,6 +433,11 @@ xmlhttp.send();
                     id="messageDropdown"
                     role="button"  data-bs-toggle="dropdown" aria-haspopup="true"  aria-expanded="false"  >
                     <i class="fa fa-envelope"></i>
+                    <?php
+                    $sql_view="SELECT message_id,from_id,date,time,subject,readstatus FROM message WHERE to_id='$system_user_id' AND inboxdelete='1' AND readstatus='1'";
+									$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
+                    ?>
+                    <span class="notification"><?php echo mysqli_num_rows($result_view); ?></span>
                   </a>
                   <ul
                     class="dropdown-menu messages-notif-box animated fadeIn"
@@ -443,13 +448,32 @@ xmlhttp.send();
                         class="dropdown-title d-flex justify-content-between align-items-center"
                       >
                         Messages
-                        <a href="#" class="small">Mark all as read</a>
+                       
                       </div>
                     </li>
                     <li>
                       <div class="message-notif-scroll scrollbar-outer">
                         <div class="notif-center">
-                          <a href="#">
+                      <?php
+                      while($row_view=mysqli_fetch_assoc($result_view))
+									{
+
+                    $sql_fromusertype="SELECT usertype, user_id FROM login WHERE user_id='$row_view[from_id]'";
+										$result_fromusertype=mysqli_query($con,$sql_fromusertype) or die("sql error in sql_fromusertype ".mysqli_error($con));
+										$row_fromusertype=mysqli_fetch_assoc($result_fromusertype);
+										
+										if($row_fromusertype["usertype"]=="Customer")
+										{//if from user is customer 
+											$sql_fromusername="SELECT name FROM customer WHERE customer_id='$row_fromusertype[user_id]'";
+										}
+										else 
+										{/// if from user is other than customer
+											$sql_fromusername="SELECT name FROM staff WHERE staff_id='$row_fromusertype[user_id]'";
+										}	
+										$result_fromusername=mysqli_query($con,$sql_fromusername) or die("sql error in sql_fromusername ".mysqli_error($con));
+										$row_fromusername=mysqli_fetch_assoc($result_fromusername);
+                      ?>
+                        <a href="index.php?page=message.php&option=fullview&pk_message_id_i=<?php echo $row_view["message_id"]; ?>">
                             <div class="notif-img">
                               <img
                                 src="assets/img/jm_denis.jpg"
@@ -457,63 +481,26 @@ xmlhttp.send();
                               />
                             </div>
                             <div class="notif-content">
-                              <span class="subject">Jimmy Denis</span>
-                              <span class="block"> How are you ? </span>
-                              <span class="time">5 minutes ago</span>
+                              <span class="subject"><?php echo $row_fromusername["name"]; ?></span>
+                              <span class="block"><?php echo $row_view["subject"]; ?></span>
+                              <span class="time"><?php echo $row_view["date"]; ?></span>
                             </div>
                           </a>
-                          <a href="#">
-                            <div class="notif-img">
-                              <img
-                                src="assets/img/chadengle.jpg"
-                                alt="Img Profile"
-                              />
-                            </div>
-                            <div class="notif-content">
-                              <span class="subject">Chad</span>
-                              <span class="block"> Ok, Thanks ! </span>
-                              <span class="time">12 minutes ago</span>
-                            </div>
-                          </a>
-                          <a href="#">
-                            <div class="notif-img">
-                              <img
-                                src="assets/img/mlane.jpg"
-                                alt="Img Profile"
-                              />
-                            </div>
-                            <div class="notif-content">
-                              <span class="subject">Jhon Doe</span>
-                              <span class="block">
-                                Ready for the meeting today...
-                              </span>
-                              <span class="time">12 minutes ago</span>
-                            </div>
-                          </a>
-                          <a href="#">
-                            <div class="notif-img">
-                              <img
-                                src="assets/img/talha.jpg"
-                                alt="Img Profile"
-                              />
-                            </div>
-                            <div class="notif-content">
-                              <span class="subject">Talha</span>
-                              <span class="block"> Hi, Apa Kabar ? </span>
-                              <span class="time">17 minutes ago</span>
-                            </div>
-                          </a>
+                     <?php
+                  }
+                     ?>
+                          
                         </div>
                       </div>
                     </li>
                     <li>
-                      <a class="see-all" href="javascript:void(0);"
+                      <a class="see-all" href="index.php?page=message.php&option=view"
                         >See all messages<i class="fa fa-angle-right"></i>
                       </a>
                     </li>
                   </ul>
                 </li>
-                <li class="nav-item topbar-icon dropdown hidden-caret">
+                <!-- <li class="nav-item topbar-icon dropdown hidden-caret">
                   <a class="nav-link dropdown-toggle" href="#" id="notifDropdown"  role="button"  data-bs-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-bell"></i>
                     <span class="notification">4</span>
@@ -582,7 +569,7 @@ xmlhttp.send();
                       </a>
                     </li>
                   </ul>
-                </li>
+                </li> -->
                 <!--
                 <li class="nav-item topbar-icon dropdown hidden-caret">
                   <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false" >

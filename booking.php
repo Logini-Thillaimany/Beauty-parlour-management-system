@@ -136,7 +136,10 @@ function checkAvailability()
 		document.getElementById("popup_body").innerHTML='<img src="file/payment/'+imageName+'" width="100%" height="100%">';
 	}
 </script>
-
+<!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
 <body>
 <?php
 if(isset($_GET["option"]))
@@ -146,152 +149,154 @@ if(isset($_GET["option"]))
 		//add form
 		$get_subTotal=$_GET["subTotal"];
 		?>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="card">
-					<div class="card-header">
-						<div class="card-title"> Form for Booking Addition</div>
-					</div>
-					<div class="card-body">
-						<div class="row">
-							<!-- form start -->
-							<form method="POST" action="">
-								
-								<!-- one row start -->
-								<div class="form-group">
-									<div class="row">
-										<!-- column one start -->
-										<div class="col-md-6 col-lg-6">									
-											<label for="txtbookingid">Booking ID</label>
-											<?php
-												$generatedid=$_SESSION["session_booking_id"];
-											?>
-											<input type="text" class="form-control" name="txtbookingid" id="txtbookingid" required placeholder="Booking ID" value="<?php echo $generatedid ;?>" readonly />
-										</div>
-										<!-- column one end -->
-										<!-- column two start -->
-										<div class="col-md-6 col-lg-6">
-											<label for="txtcustomerid">Customer ID</label>
-											<select class="form-control" name="txtcustomerid" id="txtcustomerid" required placeholder="Customer ID">
+		<div class="container py-5">
+			<div class="row d-flex justify-content-center">
+				<div class="col-md-10 col-lg-8">
+					<div class="card p-4 shadow" style="border-radius: 10px;">
+						<div class="card-header text-center">
+							<div class="card-title"> Form for Booking Addition</div>
+						</div>
+						<div class="card-body">
+							<div class="row">
+								<!-- form start -->
+								<form method="POST" action="">
+									
+									<!-- one row start -->
+									<div class="form-group">
+										<div class="row">
+											<!-- column one start -->
+											<div class="col-md-6 col-lg-6">									
+												<label for="txtbookingid">Booking ID</label>
 												<?php
-													if($system_usertype=="Clerk" || $system_usertype=="Admin")
-													{
-														echo'<option value="" disabled selected>Select Customer </option>';
-														$sql_load="SELECT customer_id, name FROM customer WHERE customer_id IN (SELECT user_id FROM login WHERE status='Active')";
-													}
-													else
-													{
-														$sql_load="SELECT customer_id, name FROM customer WHERE customer_id='$system_user_id'";
-													}
+													$generatedid=$_SESSION["session_booking_id"];
+												?>
+												<input type="text" class="form-control" name="txtbookingid" id="txtbookingid" required placeholder="Booking ID" value="<?php echo $generatedid ;?>" readonly />
+											</div>
+											<!-- column one end -->
+											<!-- column two start -->
+											<div class="col-md-6 col-lg-6">
+												<label for="txtcustomerid">Customer ID</label>
+												<select class="form-control" name="txtcustomerid" id="txtcustomerid" required placeholder="Customer ID">
+													<?php
+														if($system_usertype=="Clerk" || $system_usertype=="Admin")
+														{
+															echo'<option value="" disabled selected>Select Customer </option>';
+															$sql_load="SELECT customer_id, name FROM customer WHERE customer_id IN (SELECT user_id FROM login WHERE status='Active')";
+														}
+														else
+														{
+															$sql_load="SELECT customer_id, name FROM customer WHERE customer_id='$system_user_id'";
+														}
+													
+														$result_load=mysqli_query($con,$sql_load) or die("sql error in sql_load".mysqli_error($con));
+														while($row_load=mysqli_fetch_assoc($result_load))
+														{
+															echo'<option value="'.$row_load["customer_id"].'">'.$row_load["name"].'</option>';
+														}
+													?>
+												</select>
+											</div>
+											<!-- column two end -->
+										</div>
+									</div>
+									<!-- one row end -->
+									
+									<!-- second row start -->
+									<div class="form-group">
+										<div class="row">
+											<!-- column one start -->
+											<div class="col-md-6 col-lg-6">									
+												<label for="txtdate">booking Date</label>
+												<input type="date" class="form-control" name="txtdate" id="txtdate" readonly required value="<?php echo date("Y-m-d"); ?>" placeholder="Booking date"/>
+											</div>
+											<!-- column one end -->
+											<!-- column two start -->
+											<div class="col-md-6 col-lg-6">	
+												<label for="txtbooktype">Book type</label>
+												<select class="form-control" name="txtbooktype" id="txtbooktype" required placeholder="book type">
+													<?php
+														$sql_load_category="SELECT category_id, name FROM packagecategory WHERE category_id= '$_SESSION[session_booking_type]'";
+														$result_load_category=mysqli_query($con,$sql_load_category) or die("sql error in sql_load_category".mysqli_error($con));
+														while($row_load_category=mysqli_fetch_assoc($result_load_category))
+														{
+															echo'<option value="'.$row_load_category["category_id"].'">'.$row_load_category["name"].'</option>';
+														}	
+													?>
+												</select>
+											</div>
+											<!-- column two end -->
+										</div>
+									</div>
+									<!-- second row end -->
+									
+									<!-- third row start -->
+									<div class="form-group">
+										<div class="row">
+											<!-- column one start -->
+											<div class="col-md-6 col-lg-6">
+												<?php
+												$today=date('Y-m-d');
 												
-													$result_load=mysqli_query($con,$sql_load) or die("sql error in sql_load".mysqli_error($con));
-													while($row_load=mysqli_fetch_assoc($result_load))
-													{
-														echo'<option value="'.$row_load["customer_id"].'">'.$row_load["name"].'</option>';
-													}
+												if($system_usertype=="Customer")
+												{
+													$mindate=date("Y-m-d", strtotime($today."+1 day"));
+												}
+												else
+												{
+													$mindate=$today;
+												}
+												$maxdate=date("Y-m-d", strtotime($today."+2 months"));
 												?>
-											</select>
-										</div>
-										<!-- column two end -->
-									</div>
-								</div>
-								<!-- one row end -->
-								
-								<!-- second row start -->
-								<div class="form-group">
-									<div class="row">
-										<!-- column one start -->
-										<div class="col-md-6 col-lg-6">									
-											<label for="txtdate">booking Date</label>
-											<input type="date" class="form-control" name="txtdate" id="txtdate" readonly required value="<?php echo date("Y-m-d"); ?>" placeholder="Booking date"/>
-										</div>
-										<!-- column one end -->
-										<!-- column two start -->
-										<div class="col-md-6 col-lg-6">	
-											<label for="txtbooktype">Book type</label>
-											<select class="form-control" name="txtbooktype" id="txtbooktype" required placeholder="book type">
-												<?php
-													$sql_load_category="SELECT category_id, name FROM packagecategory WHERE category_id= '$_SESSION[session_booking_type]'";
-													$result_load_category=mysqli_query($con,$sql_load_category) or die("sql error in sql_load_category".mysqli_error($con));
-													while($row_load_category=mysqli_fetch_assoc($result_load_category))
-													{
-														echo'<option value="'.$row_load_category["category_id"].'">'.$row_load_category["name"].'</option>';
-													}	
-												?>
-											</select>
-										</div>
-										<!-- column two end -->
-									</div>
-								</div>
-								<!-- second row end -->
-								
-								<!-- third row start -->
-								<div class="form-group">
-									<div class="row">
-										<!-- column one start -->
-										<div class="col-md-6 col-lg-6">
-											<?php
-											$today=date('Y-m-d');
-											
-											if($system_usertype=="Customer")
-											{
-												$mindate=date("Y-m-d", strtotime($today."+1 day"));
-											}
-											else
-											{
-												$mindate=$today;
-											}
-											$maxdate=date("Y-m-d", strtotime($today."+2 months"));
-											?>
-											<label for="txtservicedate">Service Date</label>
-											<input type="date" class="form-control" name="txtservicedate" id="txtservicedate" onChange="checkAvailability()" min="<?php echo $mindate; ?>" max="<?php echo $maxdate; ?>" required placeholder="Service date"/>
-										</div>
-										<!-- column one end -->
-										<!-- column two start -->
-										<div class="col-md-6 col-lg-6">
-											<label for="txtservicetime">Service Time</label>
-											<input type="time" class="form-control" name="txtservicetime" id="txtservicetime" onChange="checkAvailability()" min="08:30:00" max="16:30:00" required placeholder="Service time"/>
-										</div>
-										<!-- column two end -->
-									</div>
-								</div>
-								<!-- third row end -->
-								
-								<!-- fourth row start -->
-								<div class="form-group">
-									<div class="row">
-										<!-- column one start -->
-										<div class="col-md-6 col-lg-6">									
-											<label for="txttotalamount">Total amount</label>
-											<input type="number" onkeypress="return isNumberKey(event)"  value="<?php echo $get_subTotal; ?>" readonly class="form-control" name="txttotalamount" id="txttotalamount" required placeholder="total amount"/>
-										</div>
-										<!-- column one end -->
-										<!-- column two start -->
-										<div class="col-md-6 col-lg-6">
-										</div>
-										<!-- column two end -->
-									</div>
-								</div>
-								<!-- fourth row end -->
-								
-								
-								
-								<!-- button start -->
-								<div class="form-group">
-									<div class="row">
-										<div class="col-md-6 col-lg-12">	
-											<center>
-												<a href="index.php?page=bookingpackage.php&option=add"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
-												<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
-												<input type="submit" class="btn btn-success" name="btnsave" id="btnsave"  value="Save"/>
-											</center>
+												<label for="txtservicedate">Service Date</label>
+												<input type="date" class="form-control" name="txtservicedate" id="txtservicedate" onChange="checkAvailability()" min="<?php echo $mindate; ?>" max="<?php echo $maxdate; ?>" required placeholder="Service date"/>
+											</div>
+											<!-- column one end -->
+											<!-- column two start -->
+											<div class="col-md-6 col-lg-6">
+												<label for="txtservicetime">Service Time</label>
+												<input type="time" class="form-control" name="txtservicetime" id="txtservicetime" onChange="checkAvailability()" min="08:30:00" max="16:30:00" required placeholder="Service time"/>
+											</div>
+											<!-- column two end -->
 										</div>
 									</div>
-								</div>
-								<!-- button end -->
-								
-							</form>
-							<!-- form end -->
+									<!-- third row end -->
+									
+									<!-- fourth row start -->
+									<div class="form-group">
+										<div class="row">
+											<!-- column one start -->
+											<div class="col-md-6 col-lg-6">									
+												<label for="txttotalamount">Total amount</label>
+												<input type="number" onkeypress="return isNumberKey(event)"  value="<?php echo $get_subTotal; ?>" readonly class="form-control" name="txttotalamount" id="txttotalamount" required placeholder="total amount"/>
+											</div>
+											<!-- column one end -->
+											<!-- column two start -->
+											<div class="col-md-6 col-lg-6">
+											</div>
+											<!-- column two end -->
+										</div>
+									</div>
+									<!-- fourth row end -->
+									
+									
+									
+									<!-- button start -->
+									<div class="form-group">
+										<div class="row">
+											<div class="col-md-6 col-lg-12">	
+												<center>
+													<a href="index.php?page=bookingpackage.php&option=add"><input type="button" class="btn btn-primary" name="btngoback" id="btngoback"  value="Go Back"/></a>
+													<input type="reset" class="btn btn-danger" name="btnclear" id="btnclear"  value="Clear"/>
+													<input type="submit" class="btn btn-success" name="btnsave" id="btnsave"  value="Save"/>
+												</center>
+											</div>
+										</div>
+									</div>
+									<!-- button end -->
+									
+								</form>
+								<!-- form end -->
+							</div>
 						</div>
 					</div>
 				</div>
@@ -328,6 +333,7 @@ if(isset($_GET["option"]))
 										<th>Customer </th>
 										<th>Total amount</th>
 										<th>Service date</th>
+										<th>Status</th>
 										<th>Action</th>
 									</tr>
 								</thead>
@@ -336,15 +342,15 @@ if(isset($_GET["option"]))
 									$x=1;
 									if($system_usertype=="Customer")
 									{
-										$sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE customer_id='$system_user_id' AND booktype!='Sale' ORDER BY booking_id DESC";
+										$sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,Status FROM booking WHERE customer_id='$system_user_id' AND booktype!='Sale' ORDER BY booking_id DESC";
 									}
 									else if($system_usertype=="Admin" || $system_usertype=="Clerk")
 									{
-										$sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE booktype!='Sale' ORDER BY booking_id DESC";
+										$sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,Status FROM booking WHERE booktype!='Sale' ORDER BY booking_id DESC";
 									}
 									else
 									{
-										$sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate FROM booking WHERE  booktype!='Sale' AND booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id')  ORDER BY booking_id DESC";
+										$sql_view="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,Status FROM booking WHERE  booktype!='Sale' AND booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id')  ORDER BY booking_id DESC";
 									}
 
 									$result_view=mysqli_query($con,$sql_view) or die("sql error in sql_view ".mysqli_error($con));
@@ -361,6 +367,7 @@ if(isset($_GET["option"]))
 											echo '<td>'.$row_customer["name"].'</td>';
 											echo '<td>'.$row_view["totalamount"].'</td>';
 											echo '<td>'.$row_view["servicedate"].'</td>';
+											echo '<td>'.$row_view["Status"].'</td>';
 											echo '<td>';
 												echo '<a href="index.php?page=booking.php&option=fullview&pk_booking_id='.$row_view["booking_id"].'"><button class="btn btn-success btn-sm"><i class="fa fa-eye"></i> View</button></a> ';
 												//echo '<a href="index.php?page=booking.php&option=edit&pk_booking_id='.$row_view["booking_id"].'"><button class="btn btn-info btn-sm"><i class="fa fa-pen"></i> Edit</button></a> ';

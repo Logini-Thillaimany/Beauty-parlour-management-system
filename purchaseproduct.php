@@ -167,7 +167,7 @@ if(isset($_GET["option"]))
 											<select class="form-control" name="txtproductid" id="txtproductid" onChange="enable_expire()" required placeholder="Product">
 												<option value="" disabled selected>Select</option>
 												<?php
-												$sql_load_product="SELECT product_id, name FROM product WHERE saletype='NotSale' OR (saletype='Sale' AND product_id IN (SELECT product_id FROM productprice WHERE enddate IS NULL))";
+												$sql_load_product="SELECT product_id, name FROM product WHERE product_id IN (SELECT product_id FROM productprice WHERE enddate IS NULL)";
 												$result_load_product=mysqli_query($con,$sql_load_product) or die("sql error in sql_load_product".mysqli_error($con));
 												while($row_load_product=mysqli_fetch_assoc($result_load_product))
 												{

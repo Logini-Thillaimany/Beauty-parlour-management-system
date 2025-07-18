@@ -1,4 +1,88 @@
 
+<?php
+if(!isset($_SESSION))
+{
+	session_start();
+}
+if(isset($_SESSION["login_usertype"]))
+{//someone who login to the system
+	$system_usertype=$_SESSION["login_usertype"];
+	$system_user_id=$_SESSION["login_user_id"];
+	$system_username=$_SESSION["login_username"];
+}
+else
+{//guest or public
+	$system_usertype="Guest";
+}
+if($system_usertype=="Admin" || $system_usertype=="Clerk" || $system_usertype=="MakeupArtist" || $system_usertype=="SaloonService")
+{//allow these users to access this page 
+
+include("connection.php");
+
+// Initialize income variables
+$no_SaloonService_bookings=0;
+$no_Makeup_bookings=0;
+
+$SaloonService_income=0;
+$Makeup_income=0;
+$sale_income=0;
+$Total_income=0;
+if($system_usertype=="Admin" || $system_usertype=="Clerk")
+{
+  $sql_load_booking="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,booktype,status FROM booking WHERE (status='Finish' OR status='Accept')  ORDER BY booking_id DESC";
+}
+else
+{
+  $sql_load_booking="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,booktype,status FROM booking WHERE (status='Finish' OR status='Accept')  AND booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id')  ORDER BY booking_id DESC";
+}
+$result_load_booking=mysqli_query($con,$sql_load_booking) or die("sql error in sql_load_booking ".mysqli_error($con));
+while($row_load_booking=mysqli_fetch_assoc($result_load_booking))
+{ 
+  if($row_load_booking["booktype"]!='Sale')
+  {
+    if($row_load_booking["booktype"]=='CA02')
+    {
+      $no_SaloonService_bookings++;
+      $SaloonService_income=$SaloonService_income + $row_load_booking["totalamount"];
+     
+    }
+    else if($row_load_booking["booktype"]=='CA01')
+    {
+      $no_Makeup_bookings++;
+      $Makeup_income=$Makeup_income + $row_load_booking["totalamount"];
+     
+    }
+  }
+  else
+  {
+    $sale_income=$sale_income + $row_load_booking["totalamount"];
+  }
+}
+
+if($system_usertype=="Admin" || $system_usertype=="Clerk")
+{
+  $sql_load_booking="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,booktype,status FROM booking WHERE status='Sale' ORDER BY booking_id DESC";
+}
+else
+{
+  $sql_load_booking="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,booktype,status FROM booking WHERE  status='Sale' AND booking_id IN(SELECT DISTINCT booking_id FROM bookingallocatestaff WHERE staff_id='$system_user_id')  ORDER BY booking_id DESC";
+}
+$result_load_booking=mysqli_query($con,$sql_load_booking) or die("sql error in sql_load_booking ".mysqli_error($con));
+while($row_load_booking=mysqli_fetch_assoc($result_load_booking))
+{ 
+  $sale_income=$sale_income + $row_load_booking["totalamount"];
+  
+}
+$Total_income=$SaloonService_income + $Makeup_income + $sale_income;
+
+$chart_data= [];
+$chart_data[] = ['Type', 'Income'];
+$chart_data[] = ['Saloon Service', $SaloonService_income];
+$chart_data[]=['Makeup', $Makeup_income];
+$chart_data[]=['Sales', $sale_income];
+
+?>
+
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
       google.charts.load('current', {'packages':['corechart']});
@@ -8,9 +92,11 @@
 
         var data = google.visualization.arrayToDataTable([
           ['Type', 'Number of Bookings'],
-          ['Saloon Service', 15],
-          ['Makeup',      7]
+          ['Saloon Service', <?php  echo $no_SaloonService_bookings; ?>],
+          ['Makeup', <?php echo $no_Makeup_bookings; ?>]
         ]);
+       
+
 
         var options = {
           title: 'Booking Details'
@@ -27,13 +113,7 @@
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Quarter', 'Saloon','Makeup'],
-          ['Q1', 45000, 50000],
-          ['Q2', 60000, 55000],
-          ['Q3', 70000, 60000],
-          ['Q4', 80000, 65000]
-        ]);
+        var data = google.visualization.arrayToDataTable(<?php echo json_encode($chart_data); ?>);
 
         var options = {
           chart: {
@@ -47,6 +127,89 @@
       }
     </script>
 <div class="row">
+  <?php
+  //get the total number of customers
+  $sql_count_customer="SELECT customer_id FROM customer";
+	$result_count_customer=mysqli_query($con,$sql_count_customer) or die("sql error in sql_count_customer ".mysqli_error($con));
+	$customer_count=mysqli_num_rows($result_count_customer);	
+  
+ 
+  if($system_usertype=="Admin" || $system_usertype=="Clerk")
+  {
+
+    //get the total number of packages
+    $sql_count_package="SELECT package_id FROM package WHERE package_id IN (SELECT package_id from packageprice WHERE enddate IS NULL)";
+    $result_count_package=mysqli_query($con,$sql_count_package) or die("sql error in sql_count_package ".mysqli_error($con));
+    $package_count=mysqli_num_rows($result_count_package);
+
+    //total sales amount
+    //get the current year
+    $year= date("Y");
+    //startdate and end date of the year
+    $start_date = $year.'-01-01';
+    $start_date=date("Y-m-d", strtotime($start_date));
+
+    $end_date = $year.'-12-31';
+    $end_date = date("Y-m-d", strtotime($end_date));
+
+    $total_Income=0;
+    $Booking_count=0;
+    $sql_booking="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,status FROM booking WHERE (status='Finish' OR status='Accept' OR status='Sale') AND (servicedate>='$start_date' AND servicedate<='$end_date')";
+		$result_booking=mysqli_query($con,$sql_booking) or die("sql error in sql_booking ".mysqli_error($con));
+    while($row_booking=mysqli_fetch_assoc($result_booking))
+    {
+      $total_Income= $total_Income + $row_booking["totalamount"];
+
+      if($row_booking["status"]=='Finish' OR $row_booking["status"]=='Accept')
+      {
+       $Booking_count++;
+      }
+    }
+   
+  }
+  else
+  {
+    //staff will view the no of Booking packages today for them 
+    $Leave=0;
+    $sql_leave="SELECT leave_id,staff_id,startdate,enddate,status FROM staffleave WHERE staff_id='$system_user_id' AND status='Approved' ORDER BY startdate DESC";
+    $result_leave=mysqli_query($con,$sql_leave) or die("sql error in sql_leave ".mysqli_error($con));
+		while($row_leave=mysqli_fetch_assoc($result_leave))
+    {
+      $Leave++;
+    }
+		$thisyear=date("Y");
+    $month = date("m");
+    $start_date = $thisyear."-".$month.'-01';
+    $start_date=date("Y-m-d", strtotime($start_date));
+
+    $end_date = $thisyear."-".$month;
+    $end_date = date("Y-m-t", strtotime($end_date));
+    
+    $finished_bookings_packages=0;
+    $Upcoming_bookings_packages=0;
+
+    $sql_staff_allocate="SELECT booking_id,package_id,staff_id FROM bookingallocatestaff WHERE staff_id='$system_user_id'";
+    $result_staff_allocate=mysqli_query($con,$sql_staff_allocate) or die("sql error in sql_staff_allocate ".mysqli_error($con));
+    while($row_staff_allocate=mysqli_fetch_assoc($result_staff_allocate))
+    {
+      $sql_booking_staff="SELECT booking_id,bookdate,customer_id,totalamount,servicedate,status FROM booking WHERE (status='Finish' OR status='Accept') AND booking_id='$row_staff_allocate[booking_id]' AND (servicedate>='$start_date' AND servicedate<='$end_date')";
+      $result_booking_staff=mysqli_query($con,$sql_booking_staff) or die("sql error in sql_booking_staff ".mysqli_error($con));
+      while($row_booking_staff=mysqli_fetch_assoc($result_booking_staff))
+      {
+        if($row_booking_staff["status"]=='Finish')
+        {
+          $finished_bookings_packages++;
+        }
+        else if($row_booking_staff["status"]=='Accept')
+        {
+          $Upcoming_bookings_packages++;
+        }
+      }
+
+    }
+
+  }
+  ?>
               <div class="col-sm-6 col-md-3">
                 <div class="card card-stats card-round">
                   <div class="card-body">
@@ -61,7 +224,7 @@
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Customers</p>
-                          <h5 >12</h5>
+                          <h5 ><?php echo $customer_count; ?></h5>
                         </div>
                       </div>
                     </div>
@@ -71,61 +234,136 @@
               <div class="col-sm-6 col-md-3">
                 <div class="card card-stats card-round">
                   <div class="card-body">
-                    <div class="row align-items-center">
-                      <div class="col-icon">
-                        <div class="icon-big text-center icon-info bubble-shadow-small">
-                          <i class="fas fa-solid fa-folder-open"></i>
+                   <?php
+                    if($system_usertype=="Admin" || $system_usertype=="Clerk")
+                    {
+                      ?>
+                        <div class="row align-items-center">
+                          <div class="col-icon">
+                            <div class="icon-big text-center icon-info bubble-shadow-small">
+                              <i class="fas fa-solid fa-folder-open"></i>
+                            </div>
+                          </div>
+                          <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                              <p class="card-category">Packages</p>
+                              <h5 ><?php echo $package_count; ?></h5>
+                            </div>
+                          </div>
                         </div>
+                      <?php
+                    }
+                    else
+                    {
+                      ?>
+                      <div class="row align-items-center">
+                          <div class="col-icon">
+                            <div class="icon-big text-center icon-info bubble-shadow-small">
+                              <i class="fas fa-solid fa-user-times"></i>
+                            </div>
+                          </div>
+                          <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                              <p class="card-category">Leave</p>
+                              <h5 ><?php echo $Leave; ?></h5>
+                            </div>
+                          </div>
                       </div>
-                      <div class="col col-stats ms-3 ms-sm-0">
-                        <div class="numbers">
-                          <p class="card-category">Packages</p>
-                          <h5 >30</h5>
-                        </div>
-                      </div>
-                    </div>
+                      <?php
+                    }
+                    ?>
                   </div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-3">
                 <div class="card card-stats card-round">
                   <div class="card-body">
-                    <div class="row align-items-center">
-                      <div class="col-icon">
-                        <div
-                          class="icon-big text-center icon-success bubble-shadow-small"
-                        >
-                          <i class="fas fa-luggage-cart"></i>
-                        </div>
-                      </div>
-                      <div class="col col-stats ms-3 ms-sm-0">
-                        <div class="numbers">
-                          <p class="card-category">Sales</p>
-                          <h5 >LKR 235,560</h5>
-                        </div>
-                      </div>
-                    </div>
+                    <?php
+                      if($system_usertype=="Admin" || $system_usertype=="Clerk")
+                      {
+                        ?>
+                          <div class="row align-items-center">
+                            <div class="col-icon">
+                              <div class="icon-big text-center icon-success bubble-shadow-small">
+                                <i class="fas fa-luggage-cart"></i>
+                              </div>
+                            </div>
+                            <div class="col col-stats ms-3 ms-sm-0">
+                              <div class="numbers">
+                                <p class="card-category">Total Income</p>
+                                <h5 ><?php echo $total_Income; ?></h5>
+                              </div>
+                            </div>
+                          </div>
+                         <?php
+                      }
+                      else
+                      {
+                        ?>
+                        <div class="row align-items-center">
+                            <div class="col-icon">
+                              <div class="icon-big text-center icon-success bubble-shadow-small">
+                                <i class="fas fa-check-circle"></i>
+                              </div>
+                            </div>
+                            <div class="col col-stats ms-3 ms-sm-0">
+                              <div class="numbers">
+                                <p class="card-category">Finished Works</p>
+                                <h5 ><?php echo $finished_bookings_packages; ?></h5>
+                                </div>
+                            </div>
+                          </div>
+                        <?php
+                      }
+                    ?>
                   </div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-3">
                 <div class="card card-stats card-round">
                   <div class="card-body">
-                    <div class="row align-items-center">
-                      <div class="col-icon">
-                        <div
-                          class="icon-big text-center icon-secondary bubble-shadow-small"
-                        >
-                          <i class="far fa-check-circle"></i>
+                    <?php
+                      if($system_usertype=="Admin" || $system_usertype=="Clerk")
+                      {
+                        ?>
+                        <div class="row align-items-center">
+                          <div class="col-icon">
+                            <div
+                              class="icon-big text-center icon-secondary bubble-shadow-small"
+                            >
+                              <i class="far fa-check-circle"></i>
+                            </div>
+                          </div>
+                          <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                              <p class="card-category">Bookings</p>
+                              <h5 ><?php echo $Booking_count; ?></h5>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div class="col col-stats ms-3 ms-sm-0">
-                        <div class="numbers">
-                          <p class="card-category">Bookings</p>
-                          <h5 >30</h5>
-                        </div>
-                      </div>
-                    </div>
+                        <?php
+                      }
+                      else
+                      {
+                        ?>
+                          <div class="row align-items-center">
+                            <div class="col-icon">
+                              <div
+                                class="icon-big text-center icon-secondary bubble-shadow-small"
+                              >
+                                <i class="far fa-calendar-check"></i>
+                              </div>
+                            </div>
+                            <div class="col col-stats ms-3 ms-sm-0">
+                              <div class="numbers">
+                                  <p class="card-category">Upcomming Works</p>
+                                  <h5 ><?php echo $Upcoming_bookings_packages; ?></h5>
+                              </div>
+                            </div>
+                          </div>
+                        <?php
+                      }
+                    ?>
                   </div>
                 </div>
               </div>
@@ -195,11 +433,11 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-4">
+              <!-- <div class="col-md-4">
                 <div class="card card-primary card-round">
                   <div class="card-header">
                     <div class="card-head-row">
-                      <div class="card-title">Daily Sales</div>
+                      <div class="card-title">Daily Bookings</div>
                       <div class="card-tools">
                         <div class="dropdown">
                           <button
@@ -246,7 +484,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> 
             </div>
             <div class="row">
               <div class="col-md-12">
@@ -558,7 +796,7 @@
                   </div>
                   <div class="card-body p-0">
                     <div class="table-responsive">
-                      <!-- Projects table -->
+                       Projects table 
                       <table class="table align-items-center mb-0">
                         <thead class="thead-light">
                           <tr>
@@ -679,5 +917,11 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </div>-->
+            </div> 
+<?php 
+}
+else{// other users redirect to index page
+	echo '<script>window.location.href="index.php";</script>';
+}
+?>

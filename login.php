@@ -30,8 +30,15 @@ if(isset($_POST["btnlogin"]))
 				$_SESSION["login_username"]=$row_username["username"];
 				$_SESSION["login_user_id"]=$row_username["user_id"];
 				$_SESSION["login_usertype"]=$row_username["usertype"];
-			
-				echo '<script> window.location.href="index.php";</script>';
+				if(isset($_SESSION["online_guest_book"]))
+				{
+					echo '<script>window.location.href="index.php?page=bookingpackage.php&option=add";</script>';
+				}
+				else
+				{
+					echo '<script> window.location.href="index.php";</script>';
+				}
+				
 			}
 			else
 			{ // user has been deleted or deactivated 
